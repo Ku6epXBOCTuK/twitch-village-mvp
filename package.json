@@ -1,0 +1,57 @@
+{
+	"name": "twitch-village-mvp",
+	"private": true,
+	"version": "0.0.0",
+	"license": "MIT",
+	"packageManager": "pnpm@12.4.1",
+	"author": "Ku6epXBOCTuK",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Ku6epXBOCTuK/twitch-village-mvp.git"
+	},
+	"type": "module",
+	"scripts": {
+		"dev": "node scripts/check-assets.mjs && vite dev --mode dev",
+		"build": "node scripts/check-assets.mjs && vite build",
+		"start": "node scripts/check-assets.mjs && cross-env ORIGIN=http://localhost:3000 node build-node",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "biome format . && eslint .",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"test:unit": "vitest",
+		"test": "npm run test:unit -- --run"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.6.4",
+		"@eslint/js": "^10.0.1",
+		"@iconify-json/lucide": "^1.2.140",
+		"@sveltejs/adapter-node": "^6.0.0",
+		"@sveltejs/kit": "^3.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@types/node": "^24",
+		"cross-env": "^10.1.0",
+		"eslint": "^10.4.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.19.0",
+		"globals": "^17.6.0",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.60.1",
+		"unplugin-icons": "^24.0.0",
+		"vite": "^8.3.0",
+		"vitest": "^4.1.8"
+	},
+	"imports": {
+		"#lib": "./src/lib/index.js",
+		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"@twurple/chat": "^8.2.0",
+		"miniplex": "^2.0.0",
+		"pixi.js": "^8.22.0",
+		"valibot": "^1.5.0"
+	}
+}
