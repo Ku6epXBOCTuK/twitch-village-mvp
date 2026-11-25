@@ -5,12 +5,14 @@ import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import { logger } from "#lib/logger.js";
 import { randomAnimalKind } from "./animals.js";
 import type { GameAssets } from "./assets.js";
-import { VIEWER_TIMEOUT_MS } from "./config.js";
+import { CHOP_WALK_SPEED, VIEWER_HEIGHT, VIEWER_TIMEOUT_MS } from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 import { spawnAnimal as createAnimal, spawnViewer } from "./spawn.js";
 import { logicGroups, renderGroups } from "./systems/index.js";
 import type { System } from "./systems/types.js";
+import { generateForest } from "./tiles/forest.js";
+import { generateMap } from "./tiles/index.js";
 import type {
 	AnimalKind,
 	Effect,
@@ -19,6 +21,7 @@ import type {
 	Size,
 	ViewerIdentity,
 } from "./types.js";
+import { visibleBounds } from "./viewport.js";
 
 export interface GameCoreOptions {
 	screen: Size;
@@ -41,6 +44,7 @@ export function createGameCore(
 	const world = new World<Entity>();
 	const viewers = world.with("viewer");
 
+	const view = visibleBounds(options.screen);
 	const ctx: GameContext = {
 		world,
 		screen: options.screen,
@@ -48,6 +52,10 @@ export function createGameCore(
 		viewerStore: options.viewerStore,
 		viewersDirty: false,
 		viewerProfiles: new Map<string, StoredViewer>(),
+		forest: generateForest(generateMap(), {
+			x: view.minX,
+			y: view.minY,
+		}),
 		now: options.now ?? Date.now,
 		rng: options.rng ?? Math.random,
 		measureText: options.measureText,
@@ -139,6 +147,44 @@ export function createGameCore(
 				lastSeen: ctx.now(),
 			});
 			ctx.viewersDirty = true;
+		},
+
+		chop: (userId: string) => {
+			const entity = findViewer(userId);
+			if (!entity?.position || !entity.walker) return;
+
+			const bounds = visibleBounds(ctx.screen);
+			const margin = (VIEWER_HEIGHT * ctx.settings.viewerScale) / 2;
+			let tree: (typeof ctx.forest)[number] | undefined;
+			let nearest = Infinity;
+			for (const candidate of ctx.forest) {
+				if (
+					candidate.x < bounds.minX + margin ||
+					candidate.x > bounds.maxX - margin ||
+					candidate.y < bounds.minY + margin ||
+					candidate.y > bounds.maxY - margin
+				) {
+					continue;
+				}
+				const distance = Math.hypot(
+					candidate.x - entity.position.x,
+					candidate.y - entity.position.y,
+				);
+				if (distance < nearest) {
+					nearest = distance;
+					tree = candidate;
+				}
+			}
+			if (!tree) return;
+
+			const speed = entity.chopper?.speed ?? entity.walker.speed;
+			entity.walker.target = { x: tree.x, y: tree.y - margin };
+			entity.walker.speed = CHOP_WALK_SPEED;
+			ctx.world.update(entity, "chopper", {
+				state: "walking",
+				timer: 0,
+				speed,
+			});
 		},
 
 		removeBots: () => {

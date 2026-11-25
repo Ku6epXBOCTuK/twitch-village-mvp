@@ -1,4 +1,5 @@
 ﻿import { createAnimalRenderSystem } from "./animal-render.js";
+import { createChopSystem } from "./chop.js";
 import { createEffectRenderSystem } from "./effect-render.js";
 import { createMapRenderSystem } from "./map-render.js";
 import { createMeasureSystem } from "./measure.js";
@@ -15,6 +16,7 @@ export function logicGroups(): SystemGroup[] {
 			factories: [
 				createMeasureSystem,
 				createWalkSystem,
+				createChopSystem,
 				createViewerTimeoutSystem,
 				createViewerPersistenceSystem,
 			],

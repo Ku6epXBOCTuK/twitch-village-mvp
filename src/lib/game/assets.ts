@@ -9,9 +9,15 @@ import {
 	type AnimalKind,
 } from "./animals.js";
 import {
+	PLAYER_ACTION_CLIPS,
+	PLAYER_ACTION_COLUMNS,
+	PLAYER_ACTION_FRAME_SIZE,
+	PLAYER_ACTION_PATH,
+	PLAYER_ACTION_STRIDE_HEIGHT,
 	PLAYER_CLIPS,
 	PLAYER_COLUMNS,
 	PLAYER_FRAME_SIZE,
+	type PlayerActionClip,
 	type PlayerClip,
 } from "./player.js";
 import {
@@ -31,6 +37,7 @@ const SMALL_TREE_HEIGHT = 48;
 
 export interface GameAssets {
 	player: Record<PlayerClip, Texture[]>;
+	playerActions: Record<PlayerActionClip, Texture[]>;
 	animals: Record<AnimalKind, Texture[]>;
 	tiles: Record<TileId, Texture>;
 	trees: { large: Texture; small: Texture[] };
@@ -52,6 +59,31 @@ export async function loadPlayer(): Promise<GameAssets["player"]> {
 					row * PLAYER_FRAME_SIZE,
 					PLAYER_FRAME_SIZE,
 					PLAYER_FRAME_SIZE,
+				),
+			});
+		});
+	}
+	return clips;
+}
+
+export async function loadPlayerActions(): Promise<
+	GameAssets["playerActions"]
+> {
+	const base = await Assets.load<Texture>(asset(PLAYER_ACTION_PATH));
+	base.source.scaleMode = "nearest";
+
+	const clips = {} as Record<PlayerActionClip, Texture[]>;
+	for (const clip of Object.keys(PLAYER_ACTION_CLIPS) as PlayerActionClip[]) {
+		clips[clip] = PLAYER_ACTION_CLIPS[clip].map((frame) => {
+			const col = frame % PLAYER_ACTION_COLUMNS;
+			const row = Math.floor(frame / PLAYER_ACTION_COLUMNS);
+			return new Texture({
+				source: base.source,
+				frame: new Rectangle(
+					col * PLAYER_ACTION_FRAME_SIZE,
+					row * PLAYER_ACTION_STRIDE_HEIGHT,
+					PLAYER_ACTION_FRAME_SIZE,
+					PLAYER_ACTION_FRAME_SIZE,
 				),
 			});
 		});
@@ -129,11 +161,12 @@ export async function loadTrees(): Promise<GameAssets["trees"]> {
 }
 
 export async function loadAssets(): Promise<GameAssets> {
-	const [player, animals, tiles, trees] = await Promise.all([
+	const [player, playerActions, animals, tiles, trees] = await Promise.all([
 		loadPlayer(),
+		loadPlayerActions(),
 		loadAnimals(),
 		loadTiles(),
 		loadTrees(),
 	]);
-	return { player, animals, tiles, trees };
+	return { player, playerActions, animals, tiles, trees };
 }

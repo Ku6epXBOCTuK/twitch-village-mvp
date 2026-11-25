@@ -1,9 +1,10 @@
-import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
-import type { ViewerStore } from "#lib/features/persistence/index.js";
 import type { World } from "miniplex";
 import type { Application, Container } from "pixi.js";
+import type { ViewerStore } from "#lib/features/persistence/index.js";
+import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import type { GameAssets } from "./assets.js";
 import type { GameSettings } from "./settings.js";
+import type { ForestTree } from "./tiles/forest.js";
 import type { Entity, Size } from "./types.js";
 
 export interface GameContext {
@@ -13,6 +14,7 @@ export interface GameContext {
 	viewerStore: ViewerStore;
 	viewersDirty: boolean;
 	viewerProfiles: Map<string, StoredViewer>;
+	forest: ForestTree[];
 	now(): number;
 	rng(): number;
 	measureText(text: string, fontSize: number): Size;

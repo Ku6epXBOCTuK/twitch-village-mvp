@@ -81,6 +81,7 @@ function createGame() {
 		} as unknown as Application,
 		assets: {
 			player: { walkRight: [], idleFront: [] },
+			playerActions: { chop: [] },
 			animals: {} as GameAssets["animals"],
 			tiles: {} as GameAssets["tiles"],
 			trees: { large: {}, small: [{}, {}] } as unknown as GameAssets["trees"],

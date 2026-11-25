@@ -30,6 +30,13 @@ export interface Walker {
 	heading: number;
 	speed: number;
 	timer: number;
+	target?: Position;
+}
+
+export interface Chopper {
+	state: "walking" | "chopping";
+	timer: number;
+	speed: number;
 }
 
 export interface EntityComponents {
@@ -38,6 +45,7 @@ export interface EntityComponents {
 	viewer: Viewer;
 	animal: AnimalKind;
 	walker: Walker;
+	chopper: Chopper;
 	view: Text;
 	sprite: Sprite;
 	effect: Effect;

@@ -60,6 +60,7 @@ export async function bootstrapGame(
 		spawnEffect: core.spawnEffect,
 		spawnAnimal: core.spawnAnimal,
 		joinViewer: core.joinViewer,
+		chop: core.chop,
 		removeBots: core.removeBots,
 		reset() {
 			core.reset();

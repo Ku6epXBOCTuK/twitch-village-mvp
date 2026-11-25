@@ -5,9 +5,8 @@ import {
 	MAP_WIDTH_CELLS,
 	MAP_WIDTH_PX,
 } from "../config.js";
-import { generateForest } from "../tiles/forest.js";
 import { autotile, generateMap, TILE_SIZE } from "../tiles/index.js";
-import { mapScale, visibleBounds } from "../viewport.js";
+import { mapScale } from "../viewport.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
 export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
@@ -26,13 +25,9 @@ export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
 	}
 	ctx.worldLayer.addChildAt(layer, 0);
 
-	const visible = visibleBounds(ctx.screen);
 	const forestLayer = new Container();
 	forestLayer.sortableChildren = true;
-	for (const tree of generateForest(grid, {
-		x: visible.minX,
-		y: visible.minY,
-	})) {
+	for (const tree of ctx.forest) {
 		const texture =
 			tree.kind === "large"
 				? ctx.assets.trees.large

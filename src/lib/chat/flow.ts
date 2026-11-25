@@ -39,6 +39,10 @@ const COMMANDS: Command[] = [
 		modOnly: true,
 		run: (game) => game.removeBots(),
 	},
+	{
+		name: "!рубить",
+		run: (game, message) => game.chop(message.userId),
+	},
 ];
 
 function matchCommand(

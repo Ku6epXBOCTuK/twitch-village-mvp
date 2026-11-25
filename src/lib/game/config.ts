@@ -15,6 +15,10 @@ export const WALK_MAX_SPEED = 70;
 export const WALK_MIN_TURN_TIME = 1;
 export const WALK_MAX_TURN_TIME = 4;
 
+export const CHOP_WALK_SPEED = 90;
+export const CHOP_ARRIVE_DISTANCE = 16;
+export const CHOP_DURATION = 1.5;
+
 export const VIEWER_TIMEOUT_MS = 12 * 60 * 60 * 1000;
 
 export const ANIMAL_COUNT = 6;

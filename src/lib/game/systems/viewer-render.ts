@@ -1,32 +1,43 @@
-﻿import { AnimatedSprite, Text, TextStyle } from "pixi.js";
+﻿import { AnimatedSprite, Text, TextStyle, type Texture } from "pixi.js";
 import { VIEWER_LABEL_FONT_SIZE } from "../config.js";
 import type { Entity } from "../types.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
 const LABEL_GAP = 4;
 const PLAYER_ANIMATION_SPEED = 0.18;
+const CHOP_ANIMATION_SPEED = 0.14;
 
 export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 	const viewers = ctx.world.with("viewer", "position");
+	const walkTextures = ctx.assets.player.walkRight;
+	const chopTextures = ctx.assets.playerActions.chop;
+	const texturesFor = (entity: Entity): Texture[] =>
+		entity.chopper?.state === "chopping" ? chopTextures : walkTextures;
+	const speedFor = (textures: Texture[]): number =>
+		textures === chopTextures ? CHOP_ANIMATION_SPEED : PLAYER_ANIMATION_SPEED;
+
 	const labelStyle = new TextStyle({
 		fill: "#ffffff",
 		fontSize: VIEWER_LABEL_FONT_SIZE,
 	});
 
 	const appliedDirection = new Map<Entity, 1 | -1>();
+	const appliedClip = new Map<Entity, Texture[]>();
 
 	const unsubscribeAdded = viewers.onEntityAdded.subscribe((entity) => {
 		const direction = entity.walker?.direction ?? 1;
-		const sprite = new AnimatedSprite(ctx.assets.player.walkRight);
+		const textures = texturesFor(entity);
+		const sprite = new AnimatedSprite(textures);
 		sprite.anchor.set(0.5);
 		sprite.scale.set(
 			direction * ctx.settings.viewerScale,
 			ctx.settings.viewerScale,
 		);
-		sprite.animationSpeed = PLAYER_ANIMATION_SPEED;
+		sprite.animationSpeed = speedFor(textures);
 		sprite.play();
 		entity.sprite = sprite;
 		appliedDirection.set(entity, direction);
+		appliedClip.set(entity, textures);
 
 		const label = new Text({ text: entity.viewer.user, style: labelStyle });
 		label.anchor.set(0.5, 1);
@@ -39,6 +50,7 @@ export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 		entity.sprite?.destroy();
 		entity.sprite = undefined;
 		appliedDirection.delete(entity);
+		appliedClip.delete(entity);
 		entity.view?.destroy();
 		entity.view = undefined;
 	});
@@ -47,6 +59,14 @@ export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 		for (const entity of viewers) {
 			const sprite = entity.sprite;
 			if (!(sprite instanceof AnimatedSprite)) continue;
+
+			const textures = texturesFor(entity);
+			if (appliedClip.get(entity) !== textures) {
+				sprite.textures = textures;
+				sprite.animationSpeed = speedFor(textures);
+				sprite.play();
+				appliedClip.set(entity, textures);
+			}
 
 			const direction = entity.walker?.direction ?? 1;
 			if (appliedDirection.get(entity) !== direction) {
@@ -68,6 +88,7 @@ export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 		unsubscribeAdded();
 		unsubscribeRemoved();
 		appliedDirection.clear();
+		appliedClip.clear();
 		for (const entity of viewers) {
 			entity.sprite?.destroy();
 			entity.sprite = undefined;

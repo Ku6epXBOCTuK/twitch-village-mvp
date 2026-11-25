@@ -39,6 +39,42 @@ function walkerEntity(overrides: Partial<Entity> = {}): Entity {
 }
 
 describe("walk system", () => {
+	it("walks straight to a target and faces it", () => {
+		const startX = MAP_WIDTH_PX / 2;
+		const startY = MAP_HEIGHT_PX / 2;
+		const entity = walkerEntity({
+			position: { x: startX, y: startY },
+			walker: {
+				direction: 1,
+				heading: 0,
+				speed: 60,
+				timer: 10,
+				target: { x: startX + 30, y: startY },
+			},
+		});
+		const system = createWalkSystem(makeContext([entity]));
+
+		system(0.5);
+
+		expect(entity.position?.x).toBeCloseTo(startX + 30);
+		expect(entity.position?.y).toBeCloseTo(startY);
+		expect(entity.walker?.direction).toBe(1);
+	});
+
+	it("does not move a viewer that is chopping", () => {
+		const entity = walkerEntity({
+			chopper: { state: "chopping", timer: 1, speed: 60 },
+		});
+		const system = createWalkSystem(makeContext([entity]));
+		const startX = entity.position?.x ?? 0;
+		const startY = entity.position?.y ?? 0;
+
+		system(0.5);
+
+		expect(entity.position?.x).toBe(startX);
+		expect(entity.position?.y).toBe(startY);
+	});
+
 	it("moves a viewer across both axes of the map", () => {
 		const entity = walkerEntity();
 		const system = createWalkSystem(makeContext([entity]));

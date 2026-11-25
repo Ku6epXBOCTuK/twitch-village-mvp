@@ -16,6 +16,26 @@ export const createWalkSystem: SystemFactory = (ctx) => {
 	return (dt) => {
 		const bounds = visibleBounds(ctx.screen);
 		for (const entity of walkers) {
+			if (entity.chopper?.state === "chopping") continue;
+
+			if (entity.walker.target) {
+				const target = entity.walker.target;
+				const dx = target.x - entity.position.x;
+				const dy = target.y - entity.position.y;
+				const distance = Math.hypot(dx, dy);
+				const step = entity.walker.speed * dt;
+				entity.walker.direction = dx < 0 ? -1 : 1;
+				entity.walker.heading = Math.atan2(dy, dx);
+				if (distance > step) {
+					entity.position.x += (dx / distance) * step;
+					entity.position.y += (dy / distance) * step;
+				} else {
+					entity.position.x = target.x;
+					entity.position.y = target.y;
+				}
+				continue;
+			}
+
 			entity.walker.timer -= dt;
 
 			if (entity.walker.timer <= 0) {
