@@ -59,6 +59,8 @@ vi.mock("pixi.js", () => {
 	}
 	class Sprite {
 		position = { set() {} };
+		anchor = { set() {} };
+		scale = { set() {} };
 		constructor(texture?: unknown) {
 			void texture;
 		}
@@ -81,6 +83,7 @@ function createGame() {
 			player: { walkRight: [], idleFront: [] },
 			animals: {} as GameAssets["animals"],
 			tiles: {} as GameAssets["tiles"],
+			trees: { large: {}, small: [{}, {}] } as unknown as GameAssets["trees"],
 		} as GameAssets,
 	};
 

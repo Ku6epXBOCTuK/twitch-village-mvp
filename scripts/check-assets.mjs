@@ -12,6 +12,8 @@ const required = [
 	"static/Cute_Fantasy_Free/Animals/Cow/Cow.png",
 	"static/Cute_Fantasy_Free/Animals/Pig/Pig.png",
 	"static/Cute_Fantasy_Free/Animals/Sheep/Sheep.png",
+	"static/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png",
+	"static/Cute_Fantasy_Free/Outdoor decoration/Oak_Tree_Small.png",
 ];
 const missing = required.filter((path) => !existsSync(resolve(root, path)));
 

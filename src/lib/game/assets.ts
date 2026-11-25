@@ -23,11 +23,17 @@ import {
 } from "./tiles/index.js";
 
 const PLAYER_PATH = "Cute_Fantasy_Free/Player/Player.png";
+const TREE_PATH = "Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png";
+const SMALL_TREE_PATH =
+	"Cute_Fantasy_Free/Outdoor decoration/Oak_Tree_Small.png";
+const SMALL_TREE_WIDTH = 32;
+const SMALL_TREE_HEIGHT = 48;
 
 export interface GameAssets {
 	player: Record<PlayerClip, Texture[]>;
 	animals: Record<AnimalKind, Texture[]>;
 	tiles: Record<TileId, Texture>;
+	trees: { large: Texture; small: Texture[] };
 }
 
 export async function loadPlayer(): Promise<GameAssets["player"]> {
@@ -100,11 +106,34 @@ export async function loadTiles(): Promise<GameAssets["tiles"]> {
 	return tiles;
 }
 
+export async function loadTrees(): Promise<GameAssets["trees"]> {
+	const large = await Assets.load<Texture>(asset(TREE_PATH));
+	large.source.scaleMode = "nearest";
+
+	const base = await Assets.load<Texture>(asset(SMALL_TREE_PATH));
+	base.source.scaleMode = "nearest";
+	const small = [1, 2].map(
+		(col) =>
+			new Texture({
+				source: base.source,
+				frame: new Rectangle(
+					col * SMALL_TREE_WIDTH,
+					0,
+					SMALL_TREE_WIDTH,
+					SMALL_TREE_HEIGHT,
+				),
+			}),
+	);
+
+	return { large, small };
+}
+
 export async function loadAssets(): Promise<GameAssets> {
-	const [player, animals, tiles] = await Promise.all([
+	const [player, animals, tiles, trees] = await Promise.all([
 		loadPlayer(),
 		loadAnimals(),
 		loadTiles(),
+		loadTrees(),
 	]);
-	return { player, animals, tiles };
+	return { player, animals, tiles, trees };
 }

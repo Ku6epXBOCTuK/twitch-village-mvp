@@ -60,6 +60,8 @@ vi.mock("pixi.js", () => {
 	}
 	class Sprite {
 		position = { set() {} };
+		anchor = { set() {} };
+		scale = { set() {} };
 		constructor(texture?: unknown) {
 			void texture;
 		}
@@ -97,6 +99,7 @@ function createRenderedGame(options: { load?: Promise<StoredViewer[]> } = {}) {
 			player: { walkRight: [], idleFront: [] },
 			animals: {} as GameAssets["animals"],
 			tiles: {} as GameAssets["tiles"],
+			trees: { large: {}, small: [{}, {}] } as unknown as GameAssets["trees"],
 		} as GameAssets,
 	};
 

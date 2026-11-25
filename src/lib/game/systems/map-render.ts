@@ -1,12 +1,13 @@
 import { Container, Sprite } from "pixi.js";
 import {
 	MAP_HEIGHT_CELLS,
-	MAP_WIDTH_CELLS,
 	MAP_HEIGHT_PX,
+	MAP_WIDTH_CELLS,
 	MAP_WIDTH_PX,
 } from "../config.js";
-import { TILE_SIZE, autotile, generateMap } from "../tiles/index.js";
-import { mapScale } from "../viewport.js";
+import { generateForest } from "../tiles/forest.js";
+import { autotile, generateMap, TILE_SIZE } from "../tiles/index.js";
+import { mapScale, visibleBounds } from "../viewport.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
 export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
@@ -25,6 +26,27 @@ export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
 	}
 	ctx.worldLayer.addChildAt(layer, 0);
 
+	const visible = visibleBounds(ctx.screen);
+	const forestLayer = new Container();
+	forestLayer.sortableChildren = true;
+	for (const tree of generateForest(grid, {
+		x: visible.minX,
+		y: visible.minY,
+	})) {
+		const texture =
+			tree.kind === "large"
+				? ctx.assets.trees.large
+				: ctx.assets.trees.small[tree.frame];
+		const sprite = new Sprite(texture);
+		sprite.anchor.set(0.5, 1);
+		sprite.position.set(tree.x, tree.y);
+		sprite.scale.set(tree.scale);
+		sprite.zIndex = tree.y;
+		sprite.roundPixels = true;
+		forestLayer.addChild(sprite);
+	}
+	ctx.worldLayer.addChildAt(forestLayer, 1);
+
 	const system: System = () => {
 		const scale = mapScale(ctx.screen);
 		ctx.worldLayer.scale.set(scale);
@@ -38,6 +60,7 @@ export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
 
 	system.dispose = () => {
 		layer.destroy({ children: true });
+		forestLayer.destroy({ children: true });
 	};
 
 	return system;
