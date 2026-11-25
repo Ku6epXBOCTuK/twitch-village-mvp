@@ -11,6 +11,7 @@ export {
 	tileNumber,
 } from "./atlas.js";
 export { autotile, describeMask, findGrassCorners } from "./autotile.js";
+export { createRng, generateMap } from "./generate.js";
 export { PRESETS, type GridPreset } from "./presets.js";
 export {
 	TILE_SIZE,

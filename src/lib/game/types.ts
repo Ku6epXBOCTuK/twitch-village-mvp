@@ -22,6 +22,7 @@ export type ViewerIdentity = Pick<Viewer, "userId" | "user" | "login" | "bot">;
 
 export interface Walker {
 	direction: 1 | -1;
+	heading: number;
 	speed: number;
 	timer: number;
 }

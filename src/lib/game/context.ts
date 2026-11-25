@@ -1,7 +1,7 @@
 import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import type { ViewerStore } from "#lib/features/persistence/index.js";
 import type { World } from "miniplex";
-import type { Application } from "pixi.js";
+import type { Application, Container } from "pixi.js";
 import type { GameAssets } from "./assets.js";
 import type { GameSettings } from "./settings.js";
 import type { Entity, Size } from "./types.js";
@@ -21,4 +21,5 @@ export interface GameContext {
 export interface RenderContext extends GameContext {
 	app: Application;
 	assets: GameAssets;
+	worldLayer: Container;
 }

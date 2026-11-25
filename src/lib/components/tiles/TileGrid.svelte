@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { TILE_SIZE, tileNumber, autotile } from "#lib/game/tiles/index.js";
 	import type { TerrainGrid } from "#lib/game/tiles/index.js";
+	import { autotile, TILE_SIZE, tileNumber } from "#lib/game/tiles/index.js";
 	import TileImage from "./TileImage.svelte";
 
 	interface Props {

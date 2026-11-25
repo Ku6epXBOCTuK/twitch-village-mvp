@@ -32,7 +32,7 @@ export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 		label.anchor.set(0.5, 1);
 		entity.view = label;
 
-		ctx.app.stage.addChild(sprite, label);
+		ctx.worldLayer.addChild(sprite, label);
 	});
 
 	const unsubscribeRemoved = viewers.onEntityRemoved.subscribe((entity) => {

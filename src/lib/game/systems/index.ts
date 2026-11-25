@@ -1,4 +1,5 @@
 ﻿import type { RenderSystemGroup, SystemGroup } from "./types.js";
+import { createMapRenderSystem } from "./map-render.js";
 import { createMeasureSystem } from "./measure.js";
 import { createViewerPersistenceSystem } from "./viewer-persistence.js";
 import { createViewerRenderSystem } from "./viewer-render.js";
@@ -23,7 +24,7 @@ export function renderGroups(): RenderSystemGroup[] {
 	return [
 		{
 			name: "render",
-			factories: [createViewerRenderSystem],
+			factories: [createMapRenderSystem, createViewerRenderSystem],
 		},
 	];
 }

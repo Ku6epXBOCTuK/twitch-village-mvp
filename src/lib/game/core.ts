@@ -2,7 +2,7 @@ import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import type { ViewerStore } from "#lib/features/persistence/index.js";
 import { logger } from "#lib/logger.js";
 import { World } from "miniplex";
-import type { Application } from "pixi.js";
+import { Container, type Application } from "pixi.js";
 import type { GameAssets } from "./assets.js";
 import { VIEWER_TIMEOUT_MS } from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
@@ -45,8 +45,15 @@ export function createGameCore(
 		measureText: options.measureText,
 	};
 
+	const worldLayer = new Container();
+	if (render) render.app.stage.addChild(worldLayer);
+
 	const factoryCtx: RenderContext = render
-		? Object.assign(ctx, { app: render.app, assets: render.assets })
+		? Object.assign(ctx, {
+				app: render.app,
+				assets: render.assets,
+				worldLayer,
+			})
 		: (ctx as RenderContext);
 
 	const groupDefs = render
@@ -141,6 +148,8 @@ export function createGameCore(
 		dispose() {
 			world.clear();
 			disposeGroups();
+			worldLayer.removeFromParent();
+			worldLayer.destroy({ children: false });
 		},
 	};
 }

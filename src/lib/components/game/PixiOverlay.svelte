@@ -19,7 +19,7 @@
 				canvas,
 				backgroundAlpha: 0,
 				resizeTo: window,
-				antialias: true,
+				antialias: false,
 			});
 			if (destroyed) {
 				app.destroy(true);

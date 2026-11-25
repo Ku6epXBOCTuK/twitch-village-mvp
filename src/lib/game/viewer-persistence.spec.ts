@@ -49,7 +49,23 @@ vi.mock("pixi.js", () => {
 			void props;
 		}
 	}
-	return { Graphics, AnimatedSprite, Text, TextStyle };
+	class Container {
+		x = 0;
+		y = 0;
+		scale = { x: 1, set() {} };
+		addChild() {}
+		addChildAt() {}
+		removeFromParent() {}
+		destroy() {}
+	}
+	class Sprite {
+		position = { set() {} };
+		constructor(texture?: unknown) {
+			void texture;
+		}
+		destroy() {}
+	}
+	return { Graphics, AnimatedSprite, Text, TextStyle, Container, Sprite };
 });
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
