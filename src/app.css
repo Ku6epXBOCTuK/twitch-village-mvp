@@ -22,6 +22,11 @@ svg {
 	max-width: 100%;
 }
 
+html.game-page,
+body.game-page {
+	overflow: hidden;
+}
+
 input,
 button,
 textarea,

@@ -79,6 +79,7 @@ function createRenderedGame(options: { load?: Promise<StoredViewer[]> } = {}) {
 		} as unknown as Application,
 		assets: {
 			player: { walkRight: [], idleFront: [] },
+			tiles: {} as GameAssets["tiles"],
 		} as GameAssets,
 	};
 

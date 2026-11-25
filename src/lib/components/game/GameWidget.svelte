@@ -19,11 +19,15 @@
 	const settings = parseSettings(page.url.searchParams);
 
 	onMount(() => {
+		document.documentElement.classList.add("game-page");
+		document.body.classList.add("game-page");
 		const stopChat = startChatFlow(() => game, channel);
 		return () => {
 			stopChat();
 			game?.destroy();
 			game = null;
+			document.documentElement.classList.remove("game-page");
+			document.body.classList.remove("game-page");
 		};
 	});
 
