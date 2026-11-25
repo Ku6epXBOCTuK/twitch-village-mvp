@@ -22,3 +22,8 @@ export const MAP_HEIGHT_CELLS = 100;
 export const MAP_SEED = 20261125;
 export const MAP_WIDTH_PX = MAP_WIDTH_CELLS * TILE_SIZE;
 export const MAP_HEIGHT_PX = MAP_HEIGHT_CELLS * TILE_SIZE;
+
+export const CAMPFIRE_POSITION = {
+	x: MAP_WIDTH_PX / 2,
+	y: MAP_HEIGHT_PX / 2,
+};

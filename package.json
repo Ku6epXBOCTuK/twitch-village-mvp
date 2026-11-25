@@ -51,6 +51,7 @@
 	"dependencies": {
 		"@twurple/chat": "^8.2.0",
 		"miniplex": "^2.0.0",
+		"pixelfx": "github:patch-gg/pixelfx#5294518ce7c72e48b6100a744596e0acf57f2826",
 		"pixi.js": "^8.22.0",
 		"valibot": "^1.5.0"
 	}

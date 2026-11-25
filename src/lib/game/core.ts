@@ -10,7 +10,13 @@ import { spawnViewer } from "./spawn.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 import { logicGroups, renderGroups } from "./systems/index.js";
 import type { System } from "./systems/types.js";
-import type { Entity, Size, ViewerIdentity } from "./types.js";
+import type {
+	Effect,
+	Entity,
+	Position,
+	Size,
+	ViewerIdentity,
+} from "./types.js";
 
 export interface GameCoreOptions {
 	screen: Size;
@@ -108,6 +114,9 @@ export function createGameCore(
 				}
 			}
 		},
+
+		spawnEffect: (effect: Effect, position: Position) =>
+			ctx.world.add({ effect, position } satisfies Partial<Entity>),
 
 		joinViewer: (identity: ViewerIdentity) => {
 			for (const entity of viewers) {

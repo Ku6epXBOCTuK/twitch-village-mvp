@@ -4,6 +4,7 @@ import {
 } from "#lib/features/persistence/index.js";
 import { Text, TextStyle, type Application, type Ticker } from "pixi.js";
 import { loadAssets } from "./assets.js";
+import { CAMPFIRE_POSITION } from "./config.js";
 import { createGameCore } from "./core.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 
@@ -40,6 +41,8 @@ export async function bootstrapGame(
 		{ app, assets },
 	);
 
+	core.spawnEffect({ id: "fire/campfire" }, CAMPFIRE_POSITION);
+
 	let timeScale = 1;
 	let isDestroyed = false;
 
@@ -53,9 +56,13 @@ export async function bootstrapGame(
 	return {
 		world: core.world,
 
+		spawnEffect: core.spawnEffect,
 		joinViewer: core.joinViewer,
 		removeBots: core.removeBots,
-		reset: core.reset,
+		reset() {
+			core.reset();
+			core.spawnEffect({ id: "fire/campfire" }, CAMPFIRE_POSITION);
+		},
 
 		start() {
 			if (isDestroyed) return;

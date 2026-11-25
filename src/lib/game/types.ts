@@ -1,4 +1,7 @@
 import type { Sprite, Text } from "pixi.js";
+import type { Effect } from "./fx/types.js";
+
+export type { Effect } from "./fx/types.js";
 
 export interface Position {
 	x: number;
@@ -34,6 +37,7 @@ export interface EntityComponents {
 	walker: Walker;
 	view: Text;
 	sprite: Sprite;
+	effect: Effect;
 }
 
 export type Entity = Partial<EntityComponents>;
