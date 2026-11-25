@@ -17,6 +17,8 @@ export const WALK_MAX_TURN_TIME = 4;
 
 export const VIEWER_TIMEOUT_MS = 12 * 60 * 60 * 1000;
 
+export const ANIMAL_COUNT = 6;
+
 export const MAP_WIDTH_CELLS = 160;
 export const MAP_HEIGHT_CELLS = 100;
 export const MAP_SEED = 20261125;

@@ -1,10 +1,10 @@
+import { type Application, Text, TextStyle, type Ticker } from "pixi.js";
 import {
 	createViewerStore,
 	type StorageTransport,
 } from "#lib/features/persistence/index.js";
-import { Text, TextStyle, type Application, type Ticker } from "pixi.js";
 import { loadAssets } from "./assets.js";
-import { CAMPFIRE_POSITION } from "./config.js";
+import { ANIMAL_COUNT, CAMPFIRE_POSITION } from "./config.js";
 import { createGameCore } from "./core.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 
@@ -42,6 +42,7 @@ export async function bootstrapGame(
 	);
 
 	core.spawnEffect({ id: "fire/campfire" }, CAMPFIRE_POSITION);
+	for (let i = 0; i < ANIMAL_COUNT; i++) core.spawnAnimal();
 
 	let timeScale = 1;
 	let isDestroyed = false;
@@ -57,11 +58,13 @@ export async function bootstrapGame(
 		world: core.world,
 
 		spawnEffect: core.spawnEffect,
+		spawnAnimal: core.spawnAnimal,
 		joinViewer: core.joinViewer,
 		removeBots: core.removeBots,
 		reset() {
 			core.reset();
 			core.spawnEffect({ id: "fire/campfire" }, CAMPFIRE_POSITION);
+			for (let i = 0; i < ANIMAL_COUNT; i++) core.spawnAnimal();
 		},
 
 		start() {

@@ -1,9 +1,9 @@
-import {
-	ViewerStore,
-	type StoredViewer,
-} from "#lib/features/persistence/viewer-store.js";
 import type { Application } from "pixi.js";
 import { expect, test, vi } from "vitest";
+import {
+	type StoredViewer,
+	ViewerStore,
+} from "#lib/features/persistence/viewer-store.js";
 import type { GameAssets } from "./assets.js";
 import { VIEWER_TIMEOUT_MS } from "./config.js";
 import { createGameCore, type GameCoreRender } from "./core.js";
@@ -95,6 +95,7 @@ function createRenderedGame(options: { load?: Promise<StoredViewer[]> } = {}) {
 		} as unknown as Application,
 		assets: {
 			player: { walkRight: [], idleFront: [] },
+			animals: {} as GameAssets["animals"],
 			tiles: {} as GameAssets["tiles"],
 		} as GameAssets,
 	};

@@ -8,6 +8,10 @@ const required = [
 	"static/Cute_Fantasy_Free/Tiles/Path_Tile.png",
 	"static/Cute_Fantasy_Free/Tiles/Path_Middle.png",
 	"static/Cute_Fantasy_Free/Tiles/Grass_Middle.png",
+	"static/Cute_Fantasy_Free/Animals/Chicken/Chicken.png",
+	"static/Cute_Fantasy_Free/Animals/Cow/Cow.png",
+	"static/Cute_Fantasy_Free/Animals/Pig/Pig.png",
+	"static/Cute_Fantasy_Free/Animals/Sheep/Sheep.png",
 ];
 const missing = required.filter((path) => !existsSync(resolve(root, path)));
 

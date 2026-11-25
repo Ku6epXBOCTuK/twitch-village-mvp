@@ -1,23 +1,32 @@
 import { Assets, Rectangle, Texture } from "pixi.js";
 import { asset } from "$app/paths";
 import {
+	ANIMAL_COLUMNS,
+	ANIMAL_FRAME_COUNT,
+	ANIMAL_FRAME_SIZE,
+	ANIMAL_KINDS,
+	ANIMAL_PATHS,
+	type AnimalKind,
+} from "./animals.js";
+import {
 	PLAYER_CLIPS,
 	PLAYER_COLUMNS,
 	PLAYER_FRAME_SIZE,
 	type PlayerClip,
 } from "./player.js";
 import {
+	sourceUrl,
 	TILE_DEFS,
 	TILE_SIZE,
 	type TileDef,
 	type TileId,
-	sourceUrl,
 } from "./tiles/index.js";
 
 const PLAYER_PATH = "Cute_Fantasy_Free/Player/Player.png";
 
 export interface GameAssets {
 	player: Record<PlayerClip, Texture[]>;
+	animals: Record<AnimalKind, Texture[]>;
 	tiles: Record<TileId, Texture>;
 }
 
@@ -42,6 +51,28 @@ export async function loadPlayer(): Promise<GameAssets["player"]> {
 		});
 	}
 	return clips;
+}
+
+export async function loadAnimals(): Promise<GameAssets["animals"]> {
+	const animals = {} as GameAssets["animals"];
+	for (const kind of ANIMAL_KINDS) {
+		const base = await Assets.load<Texture>(asset(ANIMAL_PATHS[kind]));
+		base.source.scaleMode = "nearest";
+		animals[kind] = Array.from({ length: ANIMAL_FRAME_COUNT }, (_, frame) => {
+			const col = frame % ANIMAL_COLUMNS;
+			const row = Math.floor(frame / ANIMAL_COLUMNS);
+			return new Texture({
+				source: base.source,
+				frame: new Rectangle(
+					col * ANIMAL_FRAME_SIZE,
+					row * ANIMAL_FRAME_SIZE,
+					ANIMAL_FRAME_SIZE,
+					ANIMAL_FRAME_SIZE,
+				),
+			});
+		});
+	}
+	return animals;
 }
 
 export async function loadTiles(): Promise<GameAssets["tiles"]> {
@@ -70,6 +101,10 @@ export async function loadTiles(): Promise<GameAssets["tiles"]> {
 }
 
 export async function loadAssets(): Promise<GameAssets> {
-	const [player, tiles] = await Promise.all([loadPlayer(), loadTiles()]);
-	return { player, tiles };
+	const [player, animals, tiles] = await Promise.all([
+		loadPlayer(),
+		loadAnimals(),
+		loadTiles(),
+	]);
+	return { player, animals, tiles };
 }

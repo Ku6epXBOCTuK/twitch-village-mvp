@@ -1,7 +1,8 @@
-﻿import type { RenderSystemGroup, SystemGroup } from "./types.js";
+﻿import { createAnimalRenderSystem } from "./animal-render.js";
 import { createEffectRenderSystem } from "./effect-render.js";
 import { createMapRenderSystem } from "./map-render.js";
 import { createMeasureSystem } from "./measure.js";
+import type { RenderSystemGroup, SystemGroup } from "./types.js";
 import { createViewerPersistenceSystem } from "./viewer-persistence.js";
 import { createViewerRenderSystem } from "./viewer-render.js";
 import { createViewerTimeoutSystem } from "./viewer-timeout.js";
@@ -28,6 +29,7 @@ export function renderGroups(): RenderSystemGroup[] {
 			factories: [
 				createMapRenderSystem,
 				createEffectRenderSystem,
+				createAnimalRenderSystem,
 				createViewerRenderSystem,
 			],
 		},

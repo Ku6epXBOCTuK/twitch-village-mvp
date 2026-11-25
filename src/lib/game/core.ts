@@ -1,16 +1,18 @@
-import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
-import type { ViewerStore } from "#lib/features/persistence/index.js";
-import { logger } from "#lib/logger.js";
 import { World } from "miniplex";
-import { Container, type Application } from "pixi.js";
+import { type Application, Container } from "pixi.js";
+import type { ViewerStore } from "#lib/features/persistence/index.js";
+import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
+import { logger } from "#lib/logger.js";
+import { randomAnimalKind } from "./animals.js";
 import type { GameAssets } from "./assets.js";
 import { VIEWER_TIMEOUT_MS } from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
-import { spawnViewer } from "./spawn.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
+import { spawnAnimal as createAnimal, spawnViewer } from "./spawn.js";
 import { logicGroups, renderGroups } from "./systems/index.js";
 import type { System } from "./systems/types.js";
 import type {
+	AnimalKind,
 	Effect,
 	Entity,
 	Position,
@@ -117,6 +119,9 @@ export function createGameCore(
 
 		spawnEffect: (effect: Effect, position: Position) =>
 			ctx.world.add({ effect, position } satisfies Partial<Entity>),
+
+		spawnAnimal: (kind?: AnimalKind) =>
+			createAnimal(ctx, kind ?? randomAnimalKind(ctx.rng)),
 
 		joinViewer: (identity: ViewerIdentity) => {
 			for (const entity of viewers) {

@@ -1,6 +1,8 @@
 import type { Sprite, Text } from "pixi.js";
+import type { AnimalKind } from "./animals.js";
 import type { Effect } from "./fx/types.js";
 
+export type { AnimalKind } from "./animals.js";
 export type { Effect } from "./fx/types.js";
 
 export interface Position {
@@ -34,6 +36,7 @@ export interface EntityComponents {
 	position: Position;
 	size: Size;
 	viewer: Viewer;
+	animal: AnimalKind;
 	walker: Walker;
 	view: Text;
 	sprite: Sprite;
