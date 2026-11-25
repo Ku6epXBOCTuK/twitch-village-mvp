@@ -42,5 +42,6 @@ describe("chop command", () => {
 			core.step(0.016);
 		}
 		expect(entity?.chopper).toBeUndefined();
+		expect(core.getInventory("u1")).toEqual({ wood: 1 });
 	});
 });

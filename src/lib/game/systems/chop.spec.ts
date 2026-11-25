@@ -2,6 +2,7 @@ import { World } from "miniplex";
 import { describe, expect, it } from "vitest";
 import { CHOP_ARRIVE_DISTANCE, CHOP_DURATION } from "../config.js";
 import type { GameContext } from "../context.js";
+import { createInventory } from "../inventory.js";
 import { defaultSettings } from "../settings.js";
 import type { Entity } from "../types.js";
 import { createChopSystem } from "./chop.js";
@@ -25,6 +26,7 @@ function chopperEntity(overrides: Partial<Entity> = {}): Entity {
 			login: "alice",
 			lastSeen: 0,
 		},
+		inventory: createInventory(),
 		position: { x: 100, y: 100 },
 		walker: {
 			direction: 1,
@@ -79,5 +81,6 @@ describe("chop system", () => {
 
 		expect(entity.chopper).toBeUndefined();
 		expect(entity.walker?.speed).toBe(30);
+		expect(entity.inventory?.items).toEqual({ wood: 1 });
 	});
 });

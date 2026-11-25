@@ -1,12 +1,18 @@
 import { CHOP_ARRIVE_DISTANCE, CHOP_DURATION } from "../config.js";
+import { addItem, type Inventory } from "../inventory.js";
 import type { Entity, Walker } from "../types.js";
 import type { SystemFactory } from "./types.js";
 
 export const createChopSystem: SystemFactory = (ctx) => {
-	const choppers = ctx.world.with("chopper", "position", "walker");
+	const choppers = ctx.world.with("chopper", "position", "walker", "inventory");
 
 	return (dt) => {
-		const finished: { entity: Entity; walker: Walker; speed: number }[] = [];
+		const finished: {
+			entity: Entity;
+			inventory: Inventory;
+			walker: Walker;
+			speed: number;
+		}[] = [];
 		for (const entity of choppers) {
 			const chopper = entity.chopper;
 			if (!chopper) continue;
@@ -27,16 +33,20 @@ export const createChopSystem: SystemFactory = (ctx) => {
 
 			chopper.timer -= dt;
 			if (chopper.timer <= 0) {
+				const inventory = entity.inventory;
+				if (!inventory) continue;
 				finished.push({
 					entity,
+					inventory,
 					walker: entity.walker,
 					speed: chopper.speed,
 				});
 			}
 		}
 
-		for (const { entity, walker, speed } of finished) {
+		for (const { entity, inventory, walker, speed } of finished) {
 			walker.speed = speed;
+			addItem(inventory, "wood", 1);
 			ctx.world.removeComponent(entity, "chopper");
 		}
 	};

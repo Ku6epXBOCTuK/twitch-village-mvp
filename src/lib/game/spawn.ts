@@ -7,6 +7,7 @@ import {
 	WALK_MIN_SPEED,
 } from "./config.js";
 import type { GameContext } from "./context.js";
+import { createInventory } from "./inventory.js";
 import type { Entity, Viewer } from "./types.js";
 import { visibleBounds } from "./viewport.js";
 
@@ -30,6 +31,7 @@ export function spawnViewer(ctx: GameContext, viewer: Viewer) {
 
 	return world.add({
 		viewer,
+		inventory: createInventory(),
 		position: { x, y },
 		walker: {
 			direction: Math.cos(heading) < 0 ? -1 : 1,

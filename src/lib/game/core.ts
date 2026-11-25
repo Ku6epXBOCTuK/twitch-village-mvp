@@ -197,6 +197,11 @@ export function createGameCore(
 			});
 		},
 
+		getInventory: (userId: string) => {
+			const entity = findViewer(userId);
+			return entity?.inventory ? { ...entity.inventory.items } : undefined;
+		},
+
 		removeBots: () => {
 			const toRemove: Entity[] = [];
 			for (const entity of viewers) {
