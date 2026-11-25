@@ -5,7 +5,12 @@ import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import { logger } from "#lib/logger.js";
 import { randomAnimalKind } from "./animals.js";
 import type { GameAssets } from "./assets.js";
-import { CHOP_WALK_SPEED, VIEWER_HEIGHT, VIEWER_TIMEOUT_MS } from "./config.js";
+import {
+	CHOP_STANDOFF,
+	CHOP_WALK_SPEED,
+	VIEWER_HEIGHT,
+	VIEWER_TIMEOUT_MS,
+} from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 import { spawnAnimal as createAnimal, spawnViewer } from "./spawn.js";
@@ -177,8 +182,13 @@ export function createGameCore(
 			}
 			if (!tree) return;
 
+			const side = entity.position.x < tree.x ? -1 : 1;
 			const speed = entity.chopper?.speed ?? entity.walker.speed;
-			entity.walker.target = { x: tree.x, y: tree.y - margin };
+			entity.walker.target = {
+				x: tree.x + side * CHOP_STANDOFF,
+				y: tree.y - margin,
+			};
+			entity.walker.direction = side === -1 ? 1 : -1;
 			entity.walker.speed = CHOP_WALK_SPEED;
 			ctx.world.update(entity, "chopper", {
 				state: "walking",

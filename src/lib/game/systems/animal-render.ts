@@ -1,8 +1,7 @@
 import { AnimatedSprite } from "pixi.js";
+import { ANIMAL_ANIMATION_SPEED } from "../animals.js";
 import type { Entity } from "../types.js";
 import type { RenderSystemFactory, System } from "./types.js";
-
-const ANIMAL_ANIMATION_SPEED = 0.12;
 
 export const createAnimalRenderSystem: RenderSystemFactory = (ctx) => {
 	const animals = ctx.world.with("animal", "position");

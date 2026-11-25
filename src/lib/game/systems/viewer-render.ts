@@ -1,11 +1,10 @@
 ﻿import { AnimatedSprite, Text, TextStyle, type Texture } from "pixi.js";
+import { CHOP_ANIMATION_SPEED, PLAYER_ANIMATION_SPEED } from "../player.js";
 import { VIEWER_LABEL_FONT_SIZE } from "../config.js";
 import type { Entity } from "../types.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
 const LABEL_GAP = 4;
-const PLAYER_ANIMATION_SPEED = 0.18;
-const CHOP_ANIMATION_SPEED = 0.14;
 
 export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 	const viewers = ctx.world.with("viewer", "position");

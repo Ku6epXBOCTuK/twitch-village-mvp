@@ -24,7 +24,7 @@ export const createWalkSystem: SystemFactory = (ctx) => {
 				const dy = target.y - entity.position.y;
 				const distance = Math.hypot(dx, dy);
 				const step = entity.walker.speed * dt;
-				entity.walker.direction = dx < 0 ? -1 : 1;
+				if (!entity.chopper) entity.walker.direction = dx < 0 ? -1 : 1;
 				entity.walker.heading = Math.atan2(dy, dx);
 				if (distance > step) {
 					entity.position.x += (dx / distance) * step;

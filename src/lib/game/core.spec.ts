@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ViewerStore } from "#lib/features/persistence/viewer-store.js";
+import { CHOP_DURATION } from "./config.js";
 import { createGameCore } from "./core.js";
 
 function makeCore() {
@@ -33,7 +34,11 @@ describe("chop command", () => {
 		expect(entity?.chopper?.state).toBe("chopping");
 		expect(entity?.walker?.target).toBeUndefined();
 
-		for (let i = 0; i < 200 && entity?.chopper; i++) {
+		for (
+			let i = 0;
+			i < Math.ceil(CHOP_DURATION / 0.016) + 1 && entity?.chopper;
+			i++
+		) {
 			core.step(0.016);
 		}
 		expect(entity?.chopper).toBeUndefined();

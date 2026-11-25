@@ -17,6 +17,7 @@ import {
 	PLAYER_CLIPS,
 	PLAYER_COLUMNS,
 	PLAYER_FRAME_SIZE,
+	PLAYER_PATH,
 	type PlayerActionClip,
 	type PlayerClip,
 } from "./player.js";
@@ -28,7 +29,6 @@ import {
 	type TileId,
 } from "./tiles/index.js";
 
-const PLAYER_PATH = "Cute_Fantasy_Free/Player/Player.png";
 const TREE_PATH = "Cute_Fantasy_Free/Outdoor decoration/Oak_Tree.png";
 const SMALL_TREE_PATH =
 	"Cute_Fantasy_Free/Outdoor decoration/Oak_Tree_Small.png";

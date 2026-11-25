@@ -1,6 +1,7 @@
 export const ANIMAL_FRAME_SIZE = 32;
 export const ANIMAL_COLUMNS = 2;
 export const ANIMAL_FRAME_COUNT = 4;
+export const ANIMAL_ANIMATION_SPEED = 0.12;
 
 export const ANIMAL_KINDS = ["chicken", "cow", "pig", "sheep"] as const;
 export type AnimalKind = (typeof ANIMAL_KINDS)[number];
