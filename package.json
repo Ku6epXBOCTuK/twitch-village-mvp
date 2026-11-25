@@ -20,6 +20,7 @@
 		"lint": "biome format . && eslint .",
 		"format": "biome format --write .",
 		"format:check": "biome format .",
+		"post-check": "goh comments && pnpm run format:check && pnpm run lint && pnpm run check && pnpm run test",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run"
 	},
