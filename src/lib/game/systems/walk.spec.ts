@@ -63,7 +63,13 @@ describe("walk system", () => {
 
 	it("does not move a viewer that is chopping", () => {
 		const entity = walkerEntity({
-			chopper: { state: "chopping", timer: 1, speed: 60 },
+			worker: {
+				action: "chop",
+				next: [],
+				state: "working",
+				timer: 1,
+				speed: 60,
+			},
 		});
 		const system = createWalkSystem(makeContext([entity]));
 		const startX = entity.position?.x ?? 0;

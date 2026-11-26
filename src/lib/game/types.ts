@@ -2,6 +2,7 @@ import type { Sprite, Text } from "pixi.js";
 import type { AnimalKind } from "./animals.js";
 import type { Effect } from "./fx/types.js";
 import type { Inventory } from "./inventory.js";
+import type { PlayerAction } from "./player.js";
 
 export type { AnimalKind } from "./animals.js";
 export type { Effect } from "./fx/types.js";
@@ -34,8 +35,12 @@ export interface Walker {
 	target?: Position;
 }
 
-export interface Chopper {
-	state: "walking" | "chopping";
+export type WorkAction = Exclude<PlayerAction, "chop">;
+
+export interface Worker {
+	action: PlayerAction;
+	next: WorkAction[];
+	state: "walking" | "working";
 	timer: number;
 	speed: number;
 }
@@ -47,7 +52,7 @@ export interface EntityComponents {
 	inventory: Inventory;
 	animal: AnimalKind;
 	walker: Walker;
-	chopper: Chopper;
+	worker: Worker;
 	view: Text;
 	sprite: Sprite;
 	effect: Effect;

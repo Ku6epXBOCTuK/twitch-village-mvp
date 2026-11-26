@@ -43,6 +43,14 @@ const COMMANDS: Command[] = [
 		name: "!рубить",
 		run: (game, message) => game.chop(message.userId),
 	},
+	{
+		name: "!сажать",
+		run: (game, message) => game.plant(message.userId),
+	},
+	{
+		name: "!копать",
+		run: (game, message) => game.dig(message.userId),
+	},
 ];
 
 function matchCommand(

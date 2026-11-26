@@ -1,4 +1,6 @@
+import type { PlayerAction } from "./player.js";
 import { TILE_SIZE } from "./tiles/types.js";
+import type { Position, WorkAction } from "./types.js";
 
 export const TWITCH_CHANNEL = "Ku6epXBOCTuK";
 
@@ -15,10 +17,21 @@ export const WALK_MAX_SPEED = 70;
 export const WALK_MIN_TURN_TIME = 1;
 export const WALK_MAX_TURN_TIME = 4;
 
-export const CHOP_WALK_SPEED = 90;
+export const WORK_WALK_SPEED = 90;
+export const WORK_ARRIVE_DISTANCE = 4;
+// NOTE: fixed positions outside the generated forest area
+export const WORK_POSITIONS: Record<WorkAction, Position> = {
+	farm: { x: 1600, y: 620 },
+	water: { x: 1600, y: 840 },
+	mine: { x: 1600, y: 1040 },
+};
+export const WORK_DURATION: Record<PlayerAction, number> = {
+	chop: 60,
+	mine: 60,
+	farm: 30,
+	water: 30,
+};
 export const CHOP_STANDOFF = 24;
-export const CHOP_ARRIVE_DISTANCE = 4;
-export const CHOP_DURATION = 60;
 
 export const VIEWER_TIMEOUT_MS = 12 * 60 * 60 * 1000;
 

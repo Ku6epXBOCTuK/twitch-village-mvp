@@ -1,14 +1,8 @@
 <script lang="ts">
-	import type { AssetPath } from "$app/types";
 	import { onMount } from "svelte";
 	import AnimationPreview from "#lib/components/frames/AnimationPreview.svelte";
 	import FrameImage from "#lib/components/frames/FrameImage.svelte";
 	import SheetGrid from "#lib/components/frames/SheetGrid.svelte";
-	import {
-		loadAnimals,
-		loadPlayer,
-		loadPlayerActions,
-	} from "#lib/game/assets.js";
 	import {
 		ANIMAL_ANIMATION_SPEED,
 		ANIMAL_COLUMNS,
@@ -19,7 +13,12 @@
 		type AnimalKind,
 	} from "#lib/game/animals.js";
 	import {
-		CHOP_ANIMATION_SPEED,
+		loadAnimals,
+		loadPlayer,
+		loadPlayerActions,
+	} from "#lib/game/assets.js";
+	import {
+		PLAYER_ACTION_ANIMATION_SPEED,
 		PLAYER_ACTION_CLIPS,
 		PLAYER_ACTION_COLUMNS,
 		PLAYER_ACTION_FRAME_SIZE,
@@ -33,6 +32,7 @@
 		PLAYER_PATH,
 		PLAYER_SHEET_ROWS,
 	} from "#lib/game/player.js";
+	import type { AssetPath } from "$app/types";
 
 	type Assets = {
 		player: Awaited<ReturnType<typeof loadPlayer>>;
@@ -73,6 +73,9 @@
 		...PLAYER_CLIPS.idleFront,
 		...PLAYER_CLIPS.walkRight,
 	];
+	const actionClipsText = Object.entries(PLAYER_ACTION_CLIPS)
+		.map(([name, frames]) => `${name}: ${frames.join(", ")}`)
+		.join("; ");
 
 	let assets = $state<Assets | null>(null);
 	let selectedPlayer = $state<number | null>(null);
@@ -113,13 +116,16 @@
 				textures: loaded.player.walkRight,
 				speed: PLAYER_ANIMATION_SPEED,
 			},
-			{
-				name: "chop",
-				sheet: actionSheet,
-				frames: PLAYER_ACTION_CLIPS.chop,
-				textures: loaded.playerActions.chop,
-				speed: CHOP_ANIMATION_SPEED,
-			},
+			...Object.keys(PLAYER_ACTION_CLIPS).map((name) => {
+				const action = name as keyof typeof PLAYER_ACTION_CLIPS;
+				return {
+					name,
+					sheet: actionSheet,
+					frames: PLAYER_ACTION_CLIPS[action],
+					textures: loaded.playerActions[action],
+					speed: PLAYER_ACTION_ANIMATION_SPEED,
+				};
+			}),
 			...ANIMAL_KINDS.map((kind) => ({
 				name: kind,
 				sheet: { ...animalSheet, path: ANIMAL_PATHS[kind] },
@@ -191,8 +197,7 @@
 				Player_Actions.png · {PLAYER_ACTION_COLUMNS}×{PLAYER_ACTION_SHEET_ROWS}
 			</h2>
 			<p class="hint">
-				Кадр 48×48: ряд 96×48 делён на два кадра. Клип chop:
-				{PLAYER_ACTION_CLIPS.chop.join(", ")}.
+				Кадр 48×48: ряд 96×48 делён на два кадра. Клипы: {actionClipsText}.
 			</p>
 			<div class="atlas-layout">
 				<SheetGrid

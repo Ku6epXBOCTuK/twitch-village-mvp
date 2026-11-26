@@ -22,9 +22,12 @@ export const PLAYER_ACTION_SHEET_ROWS = 12;
 export const PLAYER_ACTION_PATH = "Cute_Fantasy_Free/Player/Player_Actions.png";
 
 export const PLAYER_ACTION_CLIPS = {
-	chop: [9, 9, 9, 9, 6, 8, 6, 9, 7],
+	chop: [6, 6, 6, 7],
+	mine: [0, 0, 0, 1],
+	farm: [12, 12, 12, 13],
+	water: [22, 22, 22, 23],
 } as const;
 
-export type PlayerActionClip = keyof typeof PLAYER_ACTION_CLIPS;
+export type PlayerAction = keyof typeof PLAYER_ACTION_CLIPS;
 
-export const CHOP_ANIMATION_SPEED = 0.14;
+export const PLAYER_ACTION_ANIMATION_SPEED = 0.1;

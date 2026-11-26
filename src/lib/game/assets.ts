@@ -18,7 +18,7 @@ import {
 	PLAYER_COLUMNS,
 	PLAYER_FRAME_SIZE,
 	PLAYER_PATH,
-	type PlayerActionClip,
+	type PlayerAction,
 	type PlayerClip,
 } from "./player.js";
 import {
@@ -37,7 +37,7 @@ const SMALL_TREE_HEIGHT = 48;
 
 export interface GameAssets {
 	player: Record<PlayerClip, Texture[]>;
-	playerActions: Record<PlayerActionClip, Texture[]>;
+	playerActions: Record<PlayerAction, Texture[]>;
 	animals: Record<AnimalKind, Texture[]>;
 	tiles: Record<TileId, Texture>;
 	trees: { large: Texture; small: Texture[] };
@@ -72,8 +72,8 @@ export async function loadPlayerActions(): Promise<
 	const base = await Assets.load<Texture>(asset(PLAYER_ACTION_PATH));
 	base.source.scaleMode = "nearest";
 
-	const clips = {} as Record<PlayerActionClip, Texture[]>;
-	for (const clip of Object.keys(PLAYER_ACTION_CLIPS) as PlayerActionClip[]) {
+	const clips = {} as Record<PlayerAction, Texture[]>;
+	for (const clip of Object.keys(PLAYER_ACTION_CLIPS) as PlayerAction[]) {
 		clips[clip] = PLAYER_ACTION_CLIPS[clip].map((frame) => {
 			const col = frame % PLAYER_ACTION_COLUMNS;
 			const row = Math.floor(frame / PLAYER_ACTION_COLUMNS);

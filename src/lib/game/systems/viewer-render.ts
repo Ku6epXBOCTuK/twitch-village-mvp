@@ -1,6 +1,9 @@
 ﻿import { AnimatedSprite, Text, TextStyle, type Texture } from "pixi.js";
-import { CHOP_ANIMATION_SPEED, PLAYER_ANIMATION_SPEED } from "../player.js";
 import { VIEWER_LABEL_FONT_SIZE } from "../config.js";
+import {
+	PLAYER_ACTION_ANIMATION_SPEED,
+	PLAYER_ANIMATION_SPEED,
+} from "../player.js";
 import type { Entity } from "../types.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
@@ -9,11 +12,16 @@ const LABEL_GAP = 4;
 export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 	const viewers = ctx.world.with("viewer", "position");
 	const walkTextures = ctx.assets.player.walkRight;
-	const chopTextures = ctx.assets.playerActions.chop;
-	const texturesFor = (entity: Entity): Texture[] =>
-		entity.chopper?.state === "chopping" ? chopTextures : walkTextures;
+	const workingAction = (entity: Entity) =>
+		entity.worker?.state === "working" ? entity.worker.action : undefined;
+	const texturesFor = (entity: Entity): Texture[] => {
+		const action = workingAction(entity);
+		return action ? ctx.assets.playerActions[action] : walkTextures;
+	};
 	const speedFor = (textures: Texture[]): number =>
-		textures === chopTextures ? CHOP_ANIMATION_SPEED : PLAYER_ANIMATION_SPEED;
+		textures === walkTextures
+			? PLAYER_ANIMATION_SPEED
+			: PLAYER_ACTION_ANIMATION_SPEED;
 
 	const labelStyle = new TextStyle({
 		fill: "#ffffff",

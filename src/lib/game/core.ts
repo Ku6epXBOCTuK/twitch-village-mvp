@@ -7,11 +7,13 @@ import { randomAnimalKind } from "./animals.js";
 import type { GameAssets } from "./assets.js";
 import {
 	CHOP_STANDOFF,
-	CHOP_WALK_SPEED,
 	VIEWER_HEIGHT,
 	VIEWER_TIMEOUT_MS,
+	WORK_POSITIONS,
+	WORK_WALK_SPEED,
 } from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
+import type { PlayerAction } from "./player.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 import { spawnAnimal as createAnimal, spawnViewer } from "./spawn.js";
 import { logicGroups, renderGroups } from "./systems/index.js";
@@ -25,6 +27,7 @@ import type {
 	Position,
 	Size,
 	ViewerIdentity,
+	WorkAction,
 } from "./types.js";
 import { visibleBounds } from "./viewport.js";
 
@@ -119,6 +122,26 @@ export function createGameCore(
 		}
 	};
 
+	const startWork = (
+		entity: Entity,
+		action: PlayerAction,
+		next: WorkAction[],
+		target: Position,
+	) => {
+		if (!entity.position || !entity.walker) return;
+		const speed = entity.worker?.speed ?? entity.walker.speed;
+		entity.walker.direction = target.x < entity.position.x ? -1 : 1;
+		entity.walker.target = target;
+		entity.walker.speed = WORK_WALK_SPEED;
+		ctx.world.update(entity, "worker", {
+			action,
+			next,
+			state: "walking",
+			timer: 0,
+			speed,
+		});
+	};
+
 	return {
 		world,
 
@@ -183,18 +206,22 @@ export function createGameCore(
 			if (!tree) return;
 
 			const side = entity.position.x < tree.x ? -1 : 1;
-			const speed = entity.chopper?.speed ?? entity.walker.speed;
-			entity.walker.target = {
+			startWork(entity, "chop", [], {
 				x: tree.x + side * CHOP_STANDOFF,
 				y: tree.y - margin,
-			};
-			entity.walker.direction = side === -1 ? 1 : -1;
-			entity.walker.speed = CHOP_WALK_SPEED;
-			ctx.world.update(entity, "chopper", {
-				state: "walking",
-				timer: 0,
-				speed,
 			});
+		},
+
+		plant: (userId: string) => {
+			const entity = findViewer(userId);
+			if (!entity?.position || !entity.walker) return;
+			startWork(entity, "farm", ["water"], WORK_POSITIONS.farm);
+		},
+
+		dig: (userId: string) => {
+			const entity = findViewer(userId);
+			if (!entity?.position || !entity.walker) return;
+			startWork(entity, "mine", [], WORK_POSITIONS.mine);
 		},
 
 		getInventory: (userId: string) => {
