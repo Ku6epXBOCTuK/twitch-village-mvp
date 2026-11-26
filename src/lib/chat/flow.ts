@@ -1,5 +1,6 @@
 import { FOCUS_EFFECT_ID } from "#lib/game/effects/catalog.js";
 import type { bootstrapGame } from "#lib/game/index.js";
+import { isDonorLogin } from "./config.js";
 import type { ChatMessage, ChatPort } from "./port.js";
 import { TwurpleChatAdapter } from "./twurple-adapter.js";
 
@@ -9,14 +10,16 @@ const BOT_LIMIT = 20;
 
 interface Command {
 	name: string;
-	modOnly?: boolean;
 	aliases?: string[];
+	modOnly?: boolean;
+	donorOnly?: boolean;
 	run: (game: Game, message: ChatMessage, argument: string) => void;
 }
 
 const COMMANDS: Command[] = [
 	{
-		name: "!боты",
+		name: "!bots",
+		aliases: ["!боты"],
 		modOnly: true,
 		run: (game, _message, argument) => {
 			const parsed = Number.parseInt(argument, 10);
@@ -36,24 +39,30 @@ const COMMANDS: Command[] = [
 		},
 	},
 	{
-		name: "!боты-",
+		name: "!unbots",
+		aliases: ["!боты-"],
 		modOnly: true,
 		run: (game) => game.removeBots(),
 	},
 	{
-		name: "!рубить",
+		name: "!chop",
+		aliases: ["!рубить"],
 		run: (game, message) => game.chop(message.userId),
 	},
 	{
-		name: "!сажать",
+		name: "!plant",
+		aliases: ["!сажать"],
 		run: (game, message) => game.plant(message.userId),
 	},
 	{
-		name: "!шахта",
+		name: "!mine",
+		aliases: ["!шахта"],
 		run: (game, message) => game.mine(message.userId),
 	},
 	{
-		name: "!я",
+		name: "!me",
+		aliases: ["!я"],
+		donorOnly: true,
 		run: (game, message) => game.playEffect(FOCUS_EFFECT_ID, message.userId),
 	},
 ];
@@ -61,12 +70,14 @@ const COMMANDS: Command[] = [
 function matchCommand(
 	text: string,
 ): { command: Command; argument: string } | null {
+	const trimmed = text.trim();
+	const lowered = trimmed.toLowerCase();
 	for (const command of COMMANDS) {
 		const names = [command.name, ...(command.aliases ?? [])];
 		for (const name of names) {
-			if (text === name) return { command, argument: "" };
-			if (text.startsWith(`${name} `) || text.startsWith(`${name}\t`)) {
-				return { command, argument: text.slice(name.length).trim() };
+			if (lowered === name) return { command, argument: "" };
+			if (lowered.startsWith(`${name} `) || lowered.startsWith(`${name}\t`)) {
+				return { command, argument: trimmed.slice(name.length).trim() };
 			}
 		}
 	}
@@ -83,9 +94,16 @@ export function handleChatMessage(
 		login: message.login,
 	});
 
-	const matched = matchCommand(message.text.trim());
+	const matched = matchCommand(message.text);
 	if (!matched || !game) return;
 	if (matched.command.modOnly && !message.isMod) return;
+	if (
+		matched.command.donorOnly &&
+		!message.isMod &&
+		!isDonorLogin(message.login)
+	) {
+		return;
+	}
 	matched.command.run(game, message, matched.argument);
 }
 
