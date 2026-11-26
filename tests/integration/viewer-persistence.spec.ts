@@ -4,9 +4,9 @@ import {
 	type StoredViewer,
 	ViewerStore,
 } from "#lib/features/persistence/viewer-store.js";
-import type { GameAssets } from "./assets.js";
-import { VIEWER_TIMEOUT_MS } from "./config.js";
-import { createGameCore, type GameCoreRender } from "./core.js";
+import type { GameAssets } from "#lib/game/assets.js";
+import { VIEWER_TIMEOUT_MS } from "#lib/game/config.js";
+import { createGameCore, type GameCoreRender } from "#lib/game/core.js";
 
 vi.mock("pixi.js", () => {
 	class Graphics {

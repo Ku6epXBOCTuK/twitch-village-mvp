@@ -1,22 +1,9 @@
-import { World } from "miniplex";
 import { describe, expect, it } from "vitest";
 import { MAP_HEIGHT_PX, MAP_WIDTH_PX, VIEWER_WIDTH } from "../config.js";
-import type { GameContext } from "../context.js";
-import { defaultSettings } from "../settings.js";
+import { makeGameContext } from "../testing.js";
 import type { Entity } from "../types.js";
 import { visibleBounds } from "../viewport.js";
 import { createWalkSystem } from "./walk.js";
-
-function makeContext(entities: Entity[]): GameContext {
-	const world = new World<Entity>();
-	for (const entity of entities) world.add(entity);
-	return {
-		world,
-		settings: defaultSettings(),
-		rng: () => 0.5,
-		screen: { width: 800, height: 600 },
-	} as GameContext;
-}
 
 function walkerEntity(overrides: Partial<Entity> = {}): Entity {
 	return {
@@ -52,7 +39,7 @@ describe("walk system", () => {
 				target: { x: startX + 30, y: startY },
 			},
 		});
-		const system = createWalkSystem(makeContext([entity]));
+		const system = createWalkSystem(makeGameContext([entity]));
 
 		system(0.5);
 
@@ -71,7 +58,7 @@ describe("walk system", () => {
 				speed: 60,
 			},
 		});
-		const system = createWalkSystem(makeContext([entity]));
+		const system = createWalkSystem(makeGameContext([entity]));
 		const startX = entity.position?.x ?? 0;
 		const startY = entity.position?.y ?? 0;
 
@@ -83,7 +70,7 @@ describe("walk system", () => {
 
 	it("moves a viewer across both axes of the map", () => {
 		const entity = walkerEntity();
-		const system = createWalkSystem(makeContext([entity]));
+		const system = createWalkSystem(makeGameContext([entity]));
 		const startX = entity.position?.x ?? 0;
 		const startY = entity.position?.y ?? 0;
 
@@ -105,7 +92,7 @@ describe("walk system", () => {
 				timer: 10,
 			},
 		});
-		const system = createWalkSystem(makeContext([entity]));
+		const system = createWalkSystem(makeGameContext([entity]));
 
 		system(1);
 

@@ -1,26 +1,13 @@
-import { World } from "miniplex";
 import { describe, expect, it } from "vitest";
 import {
 	WORK_ARRIVE_DISTANCE,
 	WORK_DURATION,
 	WORK_POSITIONS,
 } from "../config.js";
-import type { GameContext } from "../context.js";
 import { createInventory } from "../inventory.js";
-import { defaultSettings } from "../settings.js";
+import { makeGameContext } from "../testing.js";
 import type { Entity } from "../types.js";
 import { createWorkSystem } from "./work.js";
-
-function makeContext(entities: Entity[]): GameContext {
-	const world = new World<Entity>();
-	for (const entity of entities) world.add(entity);
-	return {
-		world,
-		settings: defaultSettings(),
-		rng: () => 0.5,
-		screen: { width: 800, height: 600 },
-	} as GameContext;
-}
 
 function workerEntity(overrides: Partial<Entity> = {}): Entity {
 	return {
@@ -53,7 +40,7 @@ function workerEntity(overrides: Partial<Entity> = {}): Entity {
 describe("work system", () => {
 	it("keeps walking until the viewer reaches the target", () => {
 		const entity = workerEntity();
-		const system = createWorkSystem(makeContext([entity]));
+		const system = createWorkSystem(makeGameContext([entity]));
 
 		system(0.016);
 
@@ -72,7 +59,7 @@ describe("work system", () => {
 				speed: 30,
 			},
 		});
-		const system = createWorkSystem(makeContext([entity]));
+		const system = createWorkSystem(makeGameContext([entity]));
 
 		system(0.016);
 
@@ -98,7 +85,7 @@ describe("work system", () => {
 				speed: 30,
 			},
 		});
-		const system = createWorkSystem(makeContext([entity]));
+		const system = createWorkSystem(makeGameContext([entity]));
 
 		system(0.2);
 
@@ -118,7 +105,7 @@ describe("work system", () => {
 				speed: 30,
 			},
 		});
-		const system = createWorkSystem(makeContext([entity]));
+		const system = createWorkSystem(makeGameContext([entity]));
 
 		system(0.2);
 

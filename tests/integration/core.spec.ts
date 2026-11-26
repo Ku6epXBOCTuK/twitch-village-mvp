@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ViewerStore } from "#lib/features/persistence/viewer-store.js";
-import { WORK_DURATION, WORK_POSITIONS } from "./config.js";
-import { createGameCore } from "./core.js";
-import type { Entity } from "./types.js";
+import { WORK_DURATION, WORK_POSITIONS } from "#lib/game/config.js";
+import { createGameCore } from "#lib/game/core.js";
+import type { Entity } from "#lib/game/types.js";
 
 function makeCore() {
 	return createGameCore({

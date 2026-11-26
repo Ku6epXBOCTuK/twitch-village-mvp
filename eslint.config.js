@@ -1,8 +1,8 @@
-import prettier from "eslint-config-prettier";
 import path from "node:path";
 import js from "@eslint/js";
-import svelte from "eslint-plugin-svelte";
 import { defineConfig, includeIgnoreFile } from "eslint/config";
+import prettier from "eslint-config-prettier";
+import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import ts from "typescript-eslint";
 
@@ -40,5 +40,35 @@ export default defineConfig(
 	},
 	{
 		rules: {},
+	},
+	{
+		files: ["**/*.spec.ts", "**/*.test.ts"],
+		rules: {
+			"no-restricted-imports": [
+				"error",
+				{
+					patterns: [
+						{
+							group: ["**/core.js", "**/core"],
+							message:
+								"Booting the whole game core belongs in tests/integration; test the system directly instead.",
+						},
+					],
+					paths: [
+						{
+							name: "#lib/game",
+							message:
+								"Booting the whole game core belongs in tests/integration; test the system directly instead.",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		files: ["tests/**/*.spec.ts", "tests/**/*.test.ts"],
+		rules: {
+			"no-restricted-imports": "off",
+		},
 	},
 );
