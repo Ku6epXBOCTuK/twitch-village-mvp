@@ -25,4 +25,9 @@ describe("pixelfx sprite bridge", () => {
 		first.destroy();
 		second.destroy();
 	});
+
+	it("registers the star iris transition", () => {
+		expect(effects["transitions/star-iris"]).toBeDefined();
+		expect(effects["transitions/star-iris"]?.meta.size).toEqual([320, 180]);
+	});
 });

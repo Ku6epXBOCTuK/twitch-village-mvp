@@ -1,12 +1,6 @@
 import { Container, Sprite } from "pixi.js";
-import {
-	MAP_HEIGHT_CELLS,
-	MAP_HEIGHT_PX,
-	MAP_WIDTH_CELLS,
-	MAP_WIDTH_PX,
-} from "../config.js";
+import { MAP_HEIGHT_CELLS, MAP_WIDTH_CELLS } from "../config.js";
 import { autotile, generateMap, TILE_SIZE } from "../tiles/index.js";
-import { mapScale } from "../viewport.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
 export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
@@ -42,16 +36,7 @@ export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
 	}
 	ctx.worldLayer.addChildAt(forestLayer, 1);
 
-	const system: System = () => {
-		const scale = mapScale(ctx.screen);
-		ctx.worldLayer.scale.set(scale);
-		ctx.worldLayer.x = Math.round(
-			ctx.screen.width / 2 - (MAP_WIDTH_PX / 2) * scale,
-		);
-		ctx.worldLayer.y = Math.round(
-			ctx.screen.height / 2 - (MAP_HEIGHT_PX / 2) * scale,
-		);
-	};
+	const system: System = () => {};
 
 	system.dispose = () => {
 		layer.destroy({ children: true });

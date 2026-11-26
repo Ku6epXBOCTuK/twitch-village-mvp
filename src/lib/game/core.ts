@@ -7,6 +7,7 @@ import { randomAnimalKind } from "./animals.js";
 import type { GameAssets } from "./assets.js";
 import { VIEWER_TIMEOUT_MS, WORK_WALK_SPEED } from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
+import { createEffectRunner } from "./effects/runner.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 import { spawnAnimal as createAnimal, spawnViewer } from "./spawn.js";
 import { logicGroups, renderGroups } from "./systems/index.js";
@@ -66,13 +67,14 @@ export function createGameCore(
 	const worldLayer = new Container();
 	if (render) render.app.stage.addChild(worldLayer);
 
-	const factoryCtx: RenderContext = render
-		? Object.assign(ctx, {
+	const factoryCtx = render
+		? (Object.assign(ctx, {
 				app: render.app,
 				assets: render.assets,
 				worldLayer,
-			})
+			}) as RenderContext)
 		: (ctx as RenderContext);
+	if (render) factoryCtx.effects = createEffectRunner(factoryCtx);
 
 	const groupDefs = render
 		? [...logicGroups(), ...renderGroups()]
@@ -154,6 +156,13 @@ export function createGameCore(
 		assignJob,
 		cancelJob,
 
+		playEffect: (id: string, userId: string) => {
+			if (!render) return false;
+			const entity = findViewer(userId);
+			if (!entity?.position) return false;
+			return factoryCtx.effects.play(id, entity);
+		},
+
 		step(dt: number) {
 			for (const group of groups) {
 				for (const system of group) {
@@ -209,6 +218,7 @@ export function createGameCore(
 		},
 
 		reset() {
+			factoryCtx.effects?.stopAll();
 			world.clear();
 			disposeGroups();
 			groups = createGroups();
@@ -216,6 +226,7 @@ export function createGameCore(
 		},
 
 		dispose() {
+			factoryCtx.effects?.dispose();
 			world.clear();
 			disposeGroups();
 			worldLayer.removeFromParent();

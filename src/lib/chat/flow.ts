@@ -1,3 +1,4 @@
+import { FOCUS_EFFECT_ID } from "#lib/game/effects/catalog.js";
 import type { bootstrapGame } from "#lib/game/index.js";
 import type { ChatMessage, ChatPort } from "./port.js";
 import { TwurpleChatAdapter } from "./twurple-adapter.js";
@@ -50,6 +51,10 @@ const COMMANDS: Command[] = [
 	{
 		name: "!шахта",
 		run: (game, message) => game.mine(message.userId),
+	},
+	{
+		name: "!я",
+		run: (game, message) => game.playEffect(FOCUS_EFFECT_ID, message.userId),
 	},
 ];
 

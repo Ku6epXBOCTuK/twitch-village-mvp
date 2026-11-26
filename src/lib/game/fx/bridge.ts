@@ -29,7 +29,8 @@ export function createFxSprite(module: FxModule, effect: Effect): FxSprite {
 	sprite.anchor.set(ox / w, oy / h);
 	sprite.roundPixels = true;
 
-	const fx = createFx(module, { ...effect, x: ox, y: oy });
+	const { options, ...params } = effect;
+	const fx = createFx(module, { ...params, ...options, x: ox, y: oy });
 
 	return {
 		sprite,

@@ -5,6 +5,7 @@ import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import type { GameAssets } from "./assets.js";
 import type { GameSettings } from "./settings.js";
 import type { ForestTree } from "./tiles/forest.js";
+import type { EffectRunner } from "./effects/types.js";
 import type { Entity, Size } from "./types.js";
 
 export interface GameContext {
@@ -24,4 +25,5 @@ export interface RenderContext extends GameContext {
 	app: Application;
 	assets: GameAssets;
 	worldLayer: Container;
+	effects: EffectRunner;
 }

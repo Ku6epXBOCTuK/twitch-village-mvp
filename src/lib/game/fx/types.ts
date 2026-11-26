@@ -13,4 +13,7 @@ export interface Effect {
 	seed?: number;
 	palette?: string[];
 	light?: number;
+	focus?: number[];
+	color?: string;
+	options?: Record<string, unknown>;
 }

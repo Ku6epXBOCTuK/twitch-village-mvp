@@ -62,6 +62,7 @@ export async function bootstrapGame(
 		joinViewer: core.joinViewer,
 		assignJob: core.assignJob,
 		cancelJob: core.cancelJob,
+		playEffect: core.playEffect,
 		chop: core.chop,
 		plant: core.plant,
 		mine: core.mine,

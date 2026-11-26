@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { FOCUS_EFFECT_ID } from "#lib/game/effects/catalog.js";
 import type { bootstrapGame } from "#lib/game/index.js";
 import { handleChatMessage } from "./flow.js";
 import type { ChatMessage } from "./port.js";
@@ -40,5 +41,14 @@ describe("chat flow", () => {
 
 		expect(plant).toHaveBeenCalledWith("u1");
 		expect(mine).toHaveBeenCalledWith("u1");
+	});
+
+	it("routes !me to the focus effect of the sender", () => {
+		const playEffect = vi.fn();
+		const game = { joinViewer: vi.fn(), playEffect } as unknown as Game;
+
+		handleChatMessage(game, message("!я"));
+
+		expect(playEffect).toHaveBeenCalledWith(FOCUS_EFFECT_ID, "u1");
 	});
 });

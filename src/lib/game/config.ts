@@ -65,3 +65,9 @@ export const CAMPFIRE_POSITION = {
 	x: MAP_WIDTH_PX / 2,
 	y: MAP_HEIGHT_PX / 2,
 };
+
+export const EFFECT_PAN_DURATION = 0.5;
+export const EFFECT_ZOOM_DURATION = 0.5;
+export const FOCUS_ZOOM = 4;
+export const FOCUS_SHADE_ALPHA = 0.65;
+export const STAR_IRIS_DURATION = 2.2;
