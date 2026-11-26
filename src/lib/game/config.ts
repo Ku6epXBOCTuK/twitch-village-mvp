@@ -1,6 +1,6 @@
 import type { PlayerAction } from "./player.js";
 import { TILE_SIZE } from "./tiles/types.js";
-import type { Position, WorkAction } from "./types.js";
+import type { Position, WorkPointKind } from "./types.js";
 
 export const TWITCH_CHANNEL = "Ku6epXBOCTuK";
 
@@ -19,12 +19,30 @@ export const WALK_MAX_TURN_TIME = 4;
 
 export const WORK_WALK_SPEED = 90;
 export const WORK_ARRIVE_DISTANCE = 4;
-// NOTE: fixed positions outside the generated forest area
-export const WORK_POSITIONS: Record<WorkAction, Position> = {
-	farm: { x: 1600, y: 620 },
-	water: { x: 1600, y: 840 },
-	mine: { x: 1600, y: 1040 },
+// NOTE: work points are outside the generated forest area
+export const BED_POINTS: Position[] = [
+	{ x: 1500, y: 620 },
+	{ x: 1560, y: 620 },
+	{ x: 1620, y: 620 },
+	{ x: 1500, y: 680 },
+	{ x: 1560, y: 680 },
+	{ x: 1620, y: 680 },
+];
+export const QUARRY_POINTS: Position[] = [
+	{ x: 1500, y: 960 },
+	{ x: 1560, y: 960 },
+	{ x: 1620, y: 960 },
+	{ x: 1500, y: 1020 },
+	{ x: 1560, y: 1020 },
+	{ x: 1620, y: 1020 },
+];
+export const WORK_POINT_GROUPS: Record<WorkPointKind, Position[]> = {
+	bed: BED_POINTS,
+	quarry: QUARRY_POINTS,
 };
+export const WATER_SOURCE_POSITION: Position = { x: 1740, y: 820 };
+export const WORK_FETCH_WATER_DURATION = 5;
+export const WORK_CAMPFIRE_DURATION = 10;
 export const WORK_DURATION: Record<PlayerAction, number> = {
 	chop: 60,
 	mine: 60,

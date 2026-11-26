@@ -51,11 +51,14 @@ describe("walk system", () => {
 	it("does not move a viewer that is chopping", () => {
 		const entity = walkerEntity({
 			worker: {
+				kind: "chop",
 				action: "chop",
-				next: [],
+				phaseIndex: 0,
 				state: "working",
 				timer: 1,
 				speed: 60,
+				pointIndex: 0,
+				carrying: {},
 			},
 		});
 		const system = createWalkSystem(makeGameContext([entity]));

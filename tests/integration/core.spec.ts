@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { ViewerStore } from "#lib/features/persistence/viewer-store.js";
-import { WORK_DURATION, WORK_POSITIONS } from "#lib/game/config.js";
+import {
+	BED_POINTS,
+	CAMPFIRE_POSITION,
+	QUARRY_POINTS,
+	WATER_SOURCE_POSITION,
+	WORK_CAMPFIRE_DURATION,
+	WORK_DURATION,
+	WORK_FETCH_WATER_DURATION,
+	WORK_WALK_SPEED,
+} from "#lib/game/config.js";
 import { createGameCore } from "#lib/game/core.js";
 import type { Entity } from "#lib/game/types.js";
 
@@ -24,105 +33,161 @@ function findViewer(core: ReturnType<typeof makeCore>): Entity {
 	return entity;
 }
 
-function targetOf(entity: Entity) {
-	const target = entity.walker?.target;
-	if (!target) throw new Error("work target not set");
-	return target;
-}
-
-function walkToWork(core: ReturnType<typeof makeCore>, entity: Entity) {
-	for (let i = 0; i < 1000 && entity.worker?.state === "walking"; i++) {
-		core.step(0.016);
-	}
-	expect(entity.worker?.state).toBe("working");
-	expect(entity.walker?.target).toBeUndefined();
-}
-
-function finishWork(
+function stepUntil(
 	core: ReturnType<typeof makeCore>,
-	entity: Entity,
-	duration: number,
+	check: () => boolean | undefined,
+	label: string,
 ) {
-	for (let i = 0; i < Math.ceil(duration / 0.016) + 1 && entity.worker; i++) {
-		core.step(0.016);
-	}
+	for (let i = 0; i < 20000 && !check(); i++) core.step(0.016);
+	expect(check(), label).toBe(true);
 }
 
 describe("work commands", () => {
-	it("walks the sender to a tree, chops and returns to wandering", () => {
+	it("chops a tree, carries the log to the campfire and looks for another tree", () => {
 		const core = makeCore();
 		core.joinViewer({ userId: "u1", user: "alice", login: "alice" });
 		const entity = findViewer(core);
 
 		core.chop("u1");
-		expect(entity.worker?.state).toBe("walking");
-		expect(entity.walker?.target).toBeDefined();
+		expect(entity.worker?.kind).toBe("chop");
+		stepUntil(
+			core,
+			() => entity.worker?.state === "working",
+			"viewer reaches a tree",
+		);
+		expect(entity.worker?.action).toBe("chop");
+		expect(entity.worker?.timer).toBe(WORK_DURATION.chop);
+		const firstTreePosition = { ...entity.position };
 
-		walkToWork(core, entity);
-		finishWork(core, entity, WORK_DURATION.chop);
-
-		expect(entity.worker).toBeUndefined();
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "idle" && entity.worker.state === "walking",
+			"viewer carries the log to the campfire",
+		);
 		expect(core.getInventory("u1")).toEqual({ wood: 1 });
+		expect(entity.worker?.carrying).toEqual({ log: 1 });
+		expect(entity.walker?.target).toEqual(CAMPFIRE_POSITION);
+
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "idle" && entity.worker.state === "working",
+			"viewer waits at the campfire",
+		);
+		expect(entity.worker?.timer).toBe(WORK_CAMPFIRE_DURATION);
+
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "chop" && entity.worker.state === "walking",
+			"viewer selects another tree",
+		);
+		expect(entity.worker).toBeDefined();
+		expect(entity.worker?.carrying).toEqual({});
+		expect(entity.position).not.toEqual(firstTreePosition);
+		core.cancelJob("u1");
+		expect(entity.worker).toBeUndefined();
 	});
 
-	it("farms and then waters at different places", () => {
+	it("fetches water before watering a point, then moves to the next one", () => {
 		const core = makeCore();
 		core.joinViewer({ userId: "u1", user: "alice", login: "alice" });
 		const entity = findViewer(core);
 
 		core.plant("u1");
+		stepUntil(
+			core,
+			() => entity.worker?.state === "working",
+			"viewer reaches a point",
+		);
 		expect(entity.worker?.action).toBe("farm");
-		expect(entity.worker?.next).toEqual(["water"]);
-
-		walkToWork(core, entity);
 		expect(entity.worker?.timer).toBe(WORK_DURATION.farm);
-		const farmPosition = { ...entity.position };
 
-		finishWork(core, entity, WORK_DURATION.farm);
-		expect(entity.worker?.action).toBe("water");
-		expect(entity.worker?.state).toBe("walking");
-		expect(entity.walker?.target).toEqual(WORK_POSITIONS.water);
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "idle" && entity.worker.state === "walking",
+			"viewer goes for water",
+		);
+		expect(entity.walker?.target).toEqual(WATER_SOURCE_POSITION);
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "idle" && entity.worker.state === "working",
+			"viewer draws water",
+		);
+		expect(entity.worker?.timer).toBe(WORK_FETCH_WATER_DURATION);
 
-		walkToWork(core, entity);
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "water" && entity.worker.state === "walking",
+			"viewer returns to the same point",
+		);
+		expect(entity.worker?.carrying).toEqual({ water: 1 });
+		expect(entity.walker?.target).toEqual(BED_POINTS[0]);
+
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "water" && entity.worker.state === "working",
+			"viewer waters the point",
+		);
 		expect(entity.worker?.timer).toBe(WORK_DURATION.water);
-		expect(entity.position).not.toEqual(farmPosition);
 
-		finishWork(core, entity, WORK_DURATION.water);
-		expect(entity.worker).toBeUndefined();
-		expect(core.getInventory("u1")).toEqual({});
+		stepUntil(
+			core,
+			() =>
+				entity.worker?.action === "farm" && entity.worker.state === "walking",
+			"viewer starts the next point",
+		);
+		expect(entity.worker?.carrying).toEqual({});
+		expect(entity.walker?.target).toEqual(BED_POINTS[1]);
 	});
 
-	it("sends planting and digging to fixed places away from the trees", () => {
+	it("keeps mining through several quarry points without awarding resources", () => {
 		const core = makeCore();
 		core.joinViewer({ userId: "u1", user: "alice", login: "alice" });
 		const entity = findViewer(core);
 
-		core.chop("u1");
-		const chop = targetOf(entity);
-		core.plant("u1");
-		const farm = targetOf(entity);
-		core.dig("u1");
-		const mine = targetOf(entity);
-
-		expect(farm).toEqual(WORK_POSITIONS.farm);
-		expect(mine).toEqual(WORK_POSITIONS.mine);
-		expect(chop).not.toEqual(WORK_POSITIONS.farm);
-		expect(chop).not.toEqual(WORK_POSITIONS.mine);
-	});
-
-	it("mines for a minute without producing wood", () => {
-		const core = makeCore();
-		core.joinViewer({ userId: "u1", user: "alice", login: "alice" });
-		const entity = findViewer(core);
-
-		core.dig("u1");
+		core.mine("u1");
+		stepUntil(
+			core,
+			() => entity.worker?.state === "working",
+			"viewer reaches the quarry",
+		);
 		expect(entity.worker?.action).toBe("mine");
-
-		walkToWork(core, entity);
 		expect(entity.worker?.timer).toBe(WORK_DURATION.mine);
+		expect(entity.worker?.target).toEqual(QUARRY_POINTS[0]);
 
-		finishWork(core, entity, WORK_DURATION.mine);
-		expect(entity.worker).toBeUndefined();
+		stepUntil(
+			core,
+			() => entity.worker?.pointIndex === 1,
+			"viewer moves to the next quarry point",
+		);
+		expect(entity.worker).toBeDefined();
+		expect(entity.walker?.target).toEqual(QUARRY_POINTS[1]);
 		expect(core.getInventory("u1")).toEqual({});
+	});
+
+	it("replaces a job and restores the walking speed on cancel", () => {
+		const core = makeCore();
+		core.joinViewer({ userId: "u1", user: "alice", login: "alice" });
+		const entity = findViewer(core);
+		const walkingSpeed = entity.walker?.speed;
+		expect(walkingSpeed).toBeDefined();
+
+		core.assignJob("u1", "mine");
+		expect(entity.worker?.kind).toBe("mine");
+		expect(entity.walker?.speed).toBe(WORK_WALK_SPEED);
+
+		core.plant("u1");
+		expect(entity.worker?.kind).toBe("plant");
+		expect(entity.worker?.phaseIndex).toBe(0);
+
+		core.cancelJob("u1");
+		expect(entity.worker).toBeUndefined();
+		expect(entity.walker?.speed).toBe(walkingSpeed);
 	});
 });

@@ -16,7 +16,10 @@ export const createViewerRenderSystem: RenderSystemFactory = (ctx) => {
 		entity.worker?.state === "working" ? entity.worker.action : undefined;
 	const texturesFor = (entity: Entity): Texture[] => {
 		const action = workingAction(entity);
-		return action ? ctx.assets.playerActions[action] : walkTextures;
+		if (!action) return walkTextures;
+		return action === "idle"
+			? ctx.assets.player.idleFront
+			: ctx.assets.playerActions[action];
 	};
 	const speedFor = (textures: Texture[]): number =>
 		textures === walkTextures

@@ -20,25 +20,25 @@ describe("chat flow", () => {
 	it("ignores unrelated messages", () => {
 		const chop = vi.fn();
 		const plant = vi.fn();
-		const dig = vi.fn();
-		const game = { joinViewer: vi.fn(), chop, plant, dig } as unknown as Game;
+		const mine = vi.fn();
+		const game = { joinViewer: vi.fn(), chop, plant, mine } as unknown as Game;
 
 		handleChatMessage(game, message("привет"));
 
 		expect(chop).not.toHaveBeenCalled();
 		expect(plant).not.toHaveBeenCalled();
-		expect(dig).not.toHaveBeenCalled();
+		expect(mine).not.toHaveBeenCalled();
 	});
 
-	it("routes planting and digging to the sender", () => {
+	it("routes planting and mining to the sender", () => {
 		const plant = vi.fn();
-		const dig = vi.fn();
-		const game = { joinViewer: vi.fn(), plant, dig } as unknown as Game;
+		const mine = vi.fn();
+		const game = { joinViewer: vi.fn(), plant, mine } as unknown as Game;
 
 		handleChatMessage(game, message("!сажать"));
-		handleChatMessage(game, message("!копать"));
+		handleChatMessage(game, message("!шахта"));
 
 		expect(plant).toHaveBeenCalledWith("u1");
-		expect(dig).toHaveBeenCalledWith("u1");
+		expect(mine).toHaveBeenCalledWith("u1");
 	});
 });

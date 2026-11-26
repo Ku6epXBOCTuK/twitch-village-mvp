@@ -5,15 +5,8 @@ import type { StoredViewer } from "#lib/features/persistence/viewer-store.js";
 import { logger } from "#lib/logger.js";
 import { randomAnimalKind } from "./animals.js";
 import type { GameAssets } from "./assets.js";
-import {
-	CHOP_STANDOFF,
-	VIEWER_HEIGHT,
-	VIEWER_TIMEOUT_MS,
-	WORK_POSITIONS,
-	WORK_WALK_SPEED,
-} from "./config.js";
+import { VIEWER_TIMEOUT_MS, WORK_WALK_SPEED } from "./config.js";
 import type { GameContext, RenderContext } from "./context.js";
-import type { PlayerAction } from "./player.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 import { spawnAnimal as createAnimal, spawnViewer } from "./spawn.js";
 import { logicGroups, renderGroups } from "./systems/index.js";
@@ -27,9 +20,10 @@ import type {
 	Position,
 	Size,
 	ViewerIdentity,
-	WorkAction,
+	WorkKind,
 } from "./types.js";
 import { visibleBounds } from "./viewport.js";
+import { JOB_RECIPES } from "./work/recipes.js";
 
 export interface GameCoreOptions {
 	screen: Size;
@@ -122,28 +116,43 @@ export function createGameCore(
 		}
 	};
 
-	const startWork = (
-		entity: Entity,
-		action: PlayerAction,
-		next: WorkAction[],
-		target: Position,
-	) => {
-		if (!entity.position || !entity.walker) return;
+	const assignJob = (userId: string, kind: WorkKind) => {
+		const entity = findViewer(userId);
+		if (!entity?.position || !entity.walker) return;
 		const speed = entity.worker?.speed ?? entity.walker.speed;
-		entity.walker.direction = target.x < entity.position.x ? -1 : 1;
-		entity.walker.target = target;
 		entity.walker.speed = WORK_WALK_SPEED;
+		entity.walker.target = undefined;
 		ctx.world.update(entity, "worker", {
-			action,
-			next,
+			kind,
+			action: JOB_RECIPES[kind].phases[0].action,
+			phaseIndex: 0,
 			state: "walking",
+			target: undefined,
+			targetRef: undefined,
+			pointIndex: 0,
+			carrying: {},
+			subroutine: undefined,
 			timer: 0,
 			speed,
 		});
 	};
 
+	const cancelJob = (userId: string) => {
+		const entity = findViewer(userId);
+		if (!entity?.worker) return;
+		const speed = entity.worker.speed;
+		if (entity.walker) {
+			entity.walker.speed = speed;
+			entity.walker.target = undefined;
+		}
+		ctx.world.removeComponent(entity, "worker");
+	};
+
 	return {
 		world,
+
+		assignJob,
+		cancelJob,
 
 		step(dt: number) {
 			for (const group of groups) {
@@ -177,52 +186,11 @@ export function createGameCore(
 			ctx.viewersDirty = true;
 		},
 
-		chop: (userId: string) => {
-			const entity = findViewer(userId);
-			if (!entity?.position || !entity.walker) return;
+		chop: (userId: string) => assignJob(userId, "chop"),
 
-			const bounds = visibleBounds(ctx.screen);
-			const margin = (VIEWER_HEIGHT * ctx.settings.viewerScale) / 2;
-			let tree: (typeof ctx.forest)[number] | undefined;
-			let nearest = Infinity;
-			for (const candidate of ctx.forest) {
-				if (
-					candidate.x < bounds.minX + margin ||
-					candidate.x > bounds.maxX - margin ||
-					candidate.y < bounds.minY + margin ||
-					candidate.y > bounds.maxY - margin
-				) {
-					continue;
-				}
-				const distance = Math.hypot(
-					candidate.x - entity.position.x,
-					candidate.y - entity.position.y,
-				);
-				if (distance < nearest) {
-					nearest = distance;
-					tree = candidate;
-				}
-			}
-			if (!tree) return;
+		plant: (userId: string) => assignJob(userId, "plant"),
 
-			const side = entity.position.x < tree.x ? -1 : 1;
-			startWork(entity, "chop", [], {
-				x: tree.x + side * CHOP_STANDOFF,
-				y: tree.y - margin,
-			});
-		},
-
-		plant: (userId: string) => {
-			const entity = findViewer(userId);
-			if (!entity?.position || !entity.walker) return;
-			startWork(entity, "farm", ["water"], WORK_POSITIONS.farm);
-		},
-
-		dig: (userId: string) => {
-			const entity = findViewer(userId);
-			if (!entity?.position || !entity.walker) return;
-			startWork(entity, "mine", [], WORK_POSITIONS.mine);
-		},
+		mine: (userId: string) => assignJob(userId, "mine"),
 
 		getInventory: (userId: string) => {
 			const entity = findViewer(userId);

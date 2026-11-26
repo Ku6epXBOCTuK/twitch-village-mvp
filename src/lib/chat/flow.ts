@@ -48,8 +48,8 @@ const COMMANDS: Command[] = [
 		run: (game, message) => game.plant(message.userId),
 	},
 	{
-		name: "!копать",
-		run: (game, message) => game.dig(message.userId),
+		name: "!шахта",
+		run: (game, message) => game.mine(message.userId),
 	},
 ];
 
