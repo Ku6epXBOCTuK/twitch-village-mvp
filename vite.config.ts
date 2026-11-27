@@ -24,6 +24,7 @@ export default defineConfig({
 				test: {
 					name: "server",
 					environment: "node",
+					setupFiles: ["./tests/setup/canvas.ts"],
 					include: [
 						"src/**/*.{test,spec}.{js,ts}",
 						"tests/**/*.{test,spec}.{js,ts}",

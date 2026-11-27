@@ -1,4 +1,4 @@
-import { BufferImageSource, Sprite, Texture } from "pixi.js";
+import { CanvasSource, DOMAdapter, Sprite, Texture } from "pixi.js";
 import { clearFrame, composite, createFrame, createFx } from "pixelfx";
 import type { Position } from "../types.js";
 import type { Effect, FxModule } from "./types.js";
@@ -16,11 +16,14 @@ export function createFxSprite(module: FxModule, effect: Effect): FxSprite {
 	const [ox, oy] = module.meta.origin ?? [w / 2, h];
 	const frame = createFrame(w, h);
 	const pixels = new Uint8Array(w * h * 4);
-	const source = new BufferImageSource({
-		resource: pixels,
+	const canvas = DOMAdapter.get().createCanvas(w, h);
+	const context = canvas.getContext("2d");
+	if (!context) throw new Error("[pixelfx] 2D canvas context is unavailable");
+	const imageData = context.createImageData(w, h);
+	const source = new CanvasSource({
+		resource: canvas,
 		width: w,
 		height: h,
-		format: "rgba8unorm",
 		alphaMode: "no-premultiply-alpha",
 		scaleMode: "nearest",
 	});
@@ -41,6 +44,8 @@ export function createFxSprite(module: FxModule, effect: Effect): FxSprite {
 			clearFrame(frame);
 			fx.draw(frame);
 			composite(frame, pixels);
+			imageData.data.set(pixels);
+			context.putImageData(imageData, 0, 0);
 			source.update();
 			sprite.x = position.x;
 			sprite.y = position.y;

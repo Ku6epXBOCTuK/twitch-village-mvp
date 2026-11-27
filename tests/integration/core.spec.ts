@@ -1,5 +1,6 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { describe, expect, it } from "vitest";
+import { lastPublishedPixels } from "../setup/canvas.js";
 import { ViewerStore } from "#lib/features/persistence/viewer-store.js";
 import {
 	BED_POINTS,
@@ -238,11 +239,10 @@ describe("ambient effects", () => {
 		expect(sprite).toBeDefined();
 		if (!sprite) return;
 
-		const pixels = sprite.texture.source.resource as Uint8Array;
-		const first = pixels.slice();
+		const first = lastPublishedPixels()?.slice();
 		core.step(0.5);
 
-		expect(pixels).not.toEqual(first);
+		expect(lastPublishedPixels()).not.toEqual(first);
 		core.dispose();
 	});
 });

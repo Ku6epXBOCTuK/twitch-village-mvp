@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { publishedFrames } from "../../../../tests/setup/canvas.js";
 import { createFxSprite } from "./bridge.js";
 import { effects } from "./catalog.js";
 
@@ -38,6 +39,23 @@ describe("pixelfx sprite bridge", () => {
 
 		expect(instance.pixels).not.toEqual(first);
 		expect(instance.done()).toBe(false);
+		instance.destroy();
+	});
+
+	it("publishes every frame into the canvas texture", () => {
+		const module = effects["fire/campfire"];
+		expect(module).toBeDefined();
+		if (!module) return;
+
+		const instance = createFxSprite(module, { id: "fire/campfire" });
+		instance.update(0.5, { x: 10, y: 20 });
+		const first = publishedFrames.at(-1)?.data.slice();
+
+		instance.update(0.5, { x: 10, y: 20 });
+
+		const last = publishedFrames.at(-1);
+		expect(last && new Uint8Array(last.data.buffer)).toEqual(instance.pixels);
+		expect(last?.data).not.toEqual(first);
 		instance.destroy();
 	});
 

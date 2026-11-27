@@ -1,5 +1,6 @@
 import { Container, Sprite } from "pixi.js";
 import { describe, expect, it, vi } from "vitest";
+import { lastPublishedPixels } from "../../../../tests/setup/canvas.js";
 import type { RenderContext } from "../context.js";
 import { makeGameContext } from "../testing.js";
 import type { Entity } from "../types.js";
@@ -87,12 +88,12 @@ describe("effect runner", () => {
 
 		const layer = ctx.worldLayer.children[0] as Container;
 		const sprite = layer.children[0] as Sprite;
-		const pixels = sprite.texture.source.resource as Uint8Array;
+		expect(sprite).toBeDefined();
 		runner.update(0.5);
-		const first = pixels.slice();
+		const first = lastPublishedPixels()?.slice();
 		runner.update(0.5);
 
-		expect(pixels).not.toEqual(first);
+		expect(lastPublishedPixels()).not.toEqual(first);
 		expect(runner.isPlaying(CAMPFIRE_EFFECT_ID)).toBe(true);
 		expect(ctx.app.stage.children).toHaveLength(0);
 
