@@ -1,6 +1,7 @@
 import { FOCUS_EFFECT_ID } from "#lib/game/effects/catalog.js";
 import type { bootstrapGame } from "#lib/game/index.js";
-import { isDonorLogin } from "./config.js";
+import { COOLDOWNS, type CooldownId, isDonorLogin } from "./config.js";
+import { type CommandGate, createCommandGate } from "./cooldowns.js";
 import type { ChatMessage, ChatPort } from "./port.js";
 import { TwurpleChatAdapter } from "./twurple-adapter.js";
 
@@ -13,6 +14,7 @@ interface Command {
 	aliases?: string[];
 	modOnly?: boolean;
 	donorOnly?: boolean;
+	cooldowns?: CooldownId[];
 	run: (game: Game, message: ChatMessage, argument: string) => void;
 }
 
@@ -63,6 +65,7 @@ const COMMANDS: Command[] = [
 		name: "!me",
 		aliases: ["!я"],
 		donorOnly: true,
+		cooldowns: ["me:user"],
 		run: (game, message) => game.playEffect(FOCUS_EFFECT_ID, message.userId),
 	},
 ];
@@ -87,6 +90,7 @@ function matchCommand(
 export function handleChatMessage(
 	game: Game | null,
 	message: ChatMessage,
+	gate: CommandGate,
 ): void {
 	game?.joinViewer({
 		userId: message.userId,
@@ -104,15 +108,28 @@ export function handleChatMessage(
 	) {
 		return;
 	}
+
+	const cooldowns = matched.command.cooldowns ?? [];
+	for (const id of cooldowns) {
+		const result = gate.check(id, COOLDOWNS[id], message.userId, message.isMod);
+		if (!result.ok) return;
+	}
+
 	matched.command.run(game, message, matched.argument);
+
+	for (const id of cooldowns) {
+		gate.commit(id, COOLDOWNS[id], message.userId, message.isMod);
+	}
 }
 
 export function startChatFlow(
 	getGame: () => Game | null,
 	channel: string,
 	adapter: ChatPort = new TwurpleChatAdapter(),
+	clock: () => number = Date.now,
 ): () => void {
-	adapter.onMessage((message) => handleChatMessage(getGame(), message));
+	const gate = createCommandGate(clock);
+	adapter.onMessage((message) => handleChatMessage(getGame(), message, gate));
 	adapter.connect(channel);
 	return () => adapter.disconnect();
 }

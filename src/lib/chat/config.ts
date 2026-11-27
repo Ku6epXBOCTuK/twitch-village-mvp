@@ -1,3 +1,5 @@
+import type { CooldownPolicy } from "./cooldowns.js";
+
 export const DONOR_LOGINS = new Set<string>([
 	"wiston2035",
 	"alexnkdev",
@@ -11,3 +13,13 @@ export function isDonorLogin(login: string): boolean {
 	}
 	return false;
 }
+
+export const COOLDOWNS = {
+	"me:user": {
+		scope: "user",
+		durationMs: 30 * 60_000,
+		exemptMods: true,
+	},
+} as const satisfies Record<string, CooldownPolicy>;
+
+export type CooldownId = keyof typeof COOLDOWNS;
