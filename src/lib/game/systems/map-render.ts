@@ -1,5 +1,10 @@
-import { Container, Sprite } from "pixi.js";
-import { MAP_HEIGHT_CELLS, MAP_WIDTH_CELLS } from "../config.js";
+import { Container, RenderTexture, Sprite } from "pixi.js";
+import {
+	MAP_HEIGHT_CELLS,
+	MAP_HEIGHT_PX,
+	MAP_WIDTH_CELLS,
+	MAP_WIDTH_PX,
+} from "../config.js";
 import { autotile, generateMap, TILE_SIZE } from "../tiles/index.js";
 import type { RenderSystemFactory, System } from "./types.js";
 
@@ -7,17 +12,32 @@ export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
 	const grid = generateMap(MAP_WIDTH_CELLS, MAP_HEIGHT_CELLS);
 	const tiles = autotile(grid);
 
-	const layer = new Container();
+	const tileLayer = new Container();
 	for (let y = 0; y < grid.height; y++) {
 		for (let x = 0; x < grid.width; x++) {
 			const tile = tiles[y * grid.width + x];
 			const sprite = new Sprite(ctx.assets.tiles[tile.tile]);
 			sprite.position.set(x * TILE_SIZE, y * TILE_SIZE);
-			sprite.roundPixels = true;
-			layer.addChild(sprite);
+			tileLayer.addChild(sprite);
 		}
 	}
-	ctx.worldLayer.addChildAt(layer, 0);
+
+	const texture = RenderTexture.create({
+		width: MAP_WIDTH_PX,
+		height: MAP_HEIGHT_PX,
+		resolution: 1,
+	});
+	texture.source.scaleMode = "nearest";
+	ctx.app.renderer.render({
+		container: tileLayer,
+		target: texture,
+		clear: true,
+		clearColor: [0, 0, 0, 0],
+	});
+	tileLayer.destroy({ children: true });
+
+	const bakedMap = new Sprite(texture);
+	ctx.worldLayer.addChildAt(bakedMap, 0);
 
 	const forestLayer = new Container();
 	forestLayer.sortableChildren = true;
@@ -39,7 +59,8 @@ export const createMapRenderSystem: RenderSystemFactory = (ctx) => {
 	const system: System = () => {};
 
 	system.dispose = () => {
-		layer.destroy({ children: true });
+		bakedMap.destroy();
+		texture.destroy(true);
 		forestLayer.destroy({ children: true });
 	};
 

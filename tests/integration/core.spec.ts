@@ -201,6 +201,7 @@ describe("ambient effects", () => {
 		const app = {
 			screen: { width: 800, height: 600 },
 			stage: new Container(),
+			renderer: { render() {} },
 		};
 		const clip = new Proxy({}, { get: () => [Texture.EMPTY] });
 		const assets = {

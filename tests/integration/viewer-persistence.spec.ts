@@ -67,7 +67,25 @@ vi.mock("pixi.js", () => {
 		}
 		destroy() {}
 	}
-	return { Graphics, AnimatedSprite, Text, TextStyle, Container, Sprite };
+	class RenderTexture {
+		static create(options: { width: number; height: number }) {
+			return {
+				width: options.width,
+				height: options.height,
+				source: { scaleMode: "nearest" },
+				destroy() {},
+			};
+		}
+	}
+	return {
+		Graphics,
+		AnimatedSprite,
+		Text,
+		TextStyle,
+		Container,
+		Sprite,
+		RenderTexture,
+	};
 });
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -94,6 +112,7 @@ function createRenderedGame(options: { load?: Promise<StoredViewer[]> } = {}) {
 		app: {
 			stage: { addChild() {} },
 			screen: { width: 800, height: 600 },
+			renderer: { render() {} },
 		} as unknown as Application,
 		assets: {
 			player: { walkRight: [], idleFront: [] },
