@@ -15,8 +15,18 @@ import {
 import type { EffectDefinition } from "./types.js";
 
 export const FOCUS_EFFECT_ID = "focus-viewer";
+export const CAMPFIRE_EFFECT_ID = "fire/campfire";
 
 export const effectDefinitions: Record<string, EffectDefinition> = {
+	[CAMPFIRE_EFFECT_ID]: {
+		ambient: true,
+		phases: [
+			{
+				duration: Number.POSITIVE_INFINITY,
+				actions: [playPixelfx({ id: CAMPFIRE_EFFECT_ID, fit: "world" })],
+			},
+		],
+	},
 	[FOCUS_EFFECT_ID]: {
 		phases: [
 			{

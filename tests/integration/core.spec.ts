@@ -1,3 +1,4 @@
+import { Container, Sprite, Texture } from "pixi.js";
 import { describe, expect, it } from "vitest";
 import { ViewerStore } from "#lib/features/persistence/viewer-store.js";
 import {
@@ -11,6 +12,8 @@ import {
 	WORK_WALK_SPEED,
 } from "#lib/game/config.js";
 import { createGameCore } from "#lib/game/core.js";
+import type { GameAssets } from "#lib/game/assets.js";
+import { CAMPFIRE_EFFECT_ID } from "#lib/game/effects/catalog.js";
 import type { Entity } from "#lib/game/types.js";
 
 function makeCore() {
@@ -189,5 +192,57 @@ describe("work commands", () => {
 		core.cancelJob("u1");
 		expect(entity.worker).toBeUndefined();
 		expect(entity.walker?.speed).toBe(walkingSpeed);
+	});
+});
+
+describe("ambient effects", () => {
+	it("animates the campfire spawned through the game core", () => {
+		const app = {
+			screen: { width: 800, height: 600 },
+			stage: new Container(),
+		};
+		const clip = new Proxy({}, { get: () => [Texture.EMPTY] });
+		const assets = {
+			player: clip,
+			playerActions: clip,
+			animals: clip,
+			tiles: new Proxy({}, { get: () => Texture.EMPTY }),
+			trees: { large: Texture.EMPTY, small: [Texture.EMPTY] },
+		} as unknown as GameAssets;
+		const core = createGameCore(
+			{
+				screen: app.screen,
+				viewerStore: new ViewerStore({
+					load: () => Promise.resolve([]),
+					save: () => Promise.resolve(),
+				}),
+				measureText: () => ({ width: 0, height: 0 }),
+			},
+			{ app: app as never, assets },
+		);
+
+		core.spawnEffect({ id: CAMPFIRE_EFFECT_ID }, CAMPFIRE_POSITION);
+		core.step(0.5);
+
+		const worldLayer = app.stage.children[0] as Container;
+		const sprite = worldLayer.children
+			.flatMap((child) =>
+				child instanceof Container ? child.children : [child],
+			)
+			.find(
+				(child): child is Sprite =>
+					child instanceof Sprite &&
+					child.texture.width === 128 &&
+					child.texture.height === 128,
+			);
+		expect(sprite).toBeDefined();
+		if (!sprite) return;
+
+		const pixels = sprite.texture.source.resource as Uint8Array;
+		const first = pixels.slice();
+		core.step(0.5);
+
+		expect(pixels).not.toEqual(first);
+		core.dispose();
 	});
 });

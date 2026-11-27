@@ -172,7 +172,7 @@ export function createGameCore(
 		},
 
 		spawnEffect: (effect: Effect, position: Position) =>
-			ctx.world.add({ effect, position } satisfies Partial<Entity>),
+			factoryCtx.effects?.playAt(effect.id, position, effect) ?? false,
 
 		spawnAnimal: (kind?: AnimalKind) =>
 			createAnimal(ctx, kind ?? randomAnimalKind(ctx.rng)),

@@ -1,6 +1,5 @@
 import type { Sprite, Text } from "pixi.js";
 import type { AnimalKind } from "./animals.js";
-import type { Effect } from "./fx/types.js";
 import type { Inventory } from "./inventory.js";
 import type { PlayerAction } from "./player.js";
 import type { ResourceId } from "./resources.js";
@@ -94,7 +93,6 @@ export interface EntityComponents {
 	worker: Worker;
 	view: Text;
 	sprite: Sprite;
-	effect: Effect;
 }
 
 export type Entity = Partial<EntityComponents>;

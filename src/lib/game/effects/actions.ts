@@ -135,10 +135,11 @@ export function playPixelfx(options: {
 			[width, height] = module.meta.size ?? [64, 64];
 			const focus = options.focusOnTarget
 				? frameFocus(runtime, width, height)
-				: undefined;
+				: runtime.params?.focus;
 			instance = createFxSprite(module, {
+				...runtime.params,
 				id: options.id,
-				seed: options.seed,
+				seed: options.seed ?? runtime.params?.seed,
 				focus,
 			});
 			runtime.layer.addChild(instance.sprite);

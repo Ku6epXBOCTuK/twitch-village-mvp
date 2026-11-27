@@ -1,5 +1,7 @@
 import { Container } from "pixi.js";
 import type { RenderContext } from "../context.js";
+import type { Effect } from "../fx/types.js";
+import type { Entity } from "../types.js";
 import { effectDefinitions } from "./catalog.js";
 import { createCamera } from "./camera.js";
 import type { EffectDefinition, EffectRuntime, EffectRunner } from "./types.js";
@@ -9,6 +11,7 @@ interface ActiveEffect {
 	definition: EffectDefinition;
 	phaseIndex: number;
 	elapsed: number;
+	tracked?: Entity;
 	runtime: EffectRuntime;
 }
 
@@ -42,7 +45,7 @@ export function createEffectRunner(ctx: RenderContext): EffectRunner {
 	}
 
 	function resetCameraWhenIdle() {
-		if (active.length === 0) camera.reset();
+		if (active.every((effect) => effect.definition.ambient)) camera.reset();
 	}
 
 	function clear() {
@@ -51,31 +54,57 @@ export function createEffectRunner(ctx: RenderContext): EffectRunner {
 		resetCameraWhenIdle();
 	}
 
+	function start(
+		id: string,
+		definition: EffectDefinition,
+		target: Entity,
+		tracked: Entity | undefined,
+		parent: Container,
+		params?: Effect,
+	) {
+		const layer = new Container();
+		parent.addChild(layer);
+		const effect: ActiveEffect = {
+			id,
+			definition,
+			phaseIndex: 0,
+			elapsed: 0,
+			tracked,
+			runtime: {
+				ctx,
+				camera,
+				layer,
+				target,
+				params,
+				channels: new Map(),
+				resources: new Map(),
+			},
+		};
+		active.push(effect);
+		enterPhase(effect);
+		return true;
+	}
+
 	return {
 		play(id, target) {
 			const definition = effectDefinitions[id];
 			if (!definition || definition.phases.length === 0) return false;
 			if (active.some((effect) => effect.id === id)) return false;
+			return start(id, definition, target, target, ctx.app.stage);
+		},
 
-			const layer = new Container();
-			ctx.app.stage.addChild(layer);
-			const effect: ActiveEffect = {
+		playAt(id, position, params) {
+			const definition = effectDefinitions[id];
+			if (!definition || definition.phases.length === 0) return false;
+			if (active.some((effect) => effect.id === id)) return false;
+			return start(
 				id,
 				definition,
-				phaseIndex: 0,
-				elapsed: 0,
-				runtime: {
-					ctx,
-					camera,
-					layer,
-					target,
-					channels: new Map(),
-					resources: new Map(),
-				},
-			};
-			active.push(effect);
-			enterPhase(effect);
-			return true;
+				{ position },
+				undefined,
+				ctx.worldLayer,
+				params,
+			);
 		},
 
 		stop(id) {
@@ -96,9 +125,10 @@ export function createEffectRunner(ctx: RenderContext): EffectRunner {
 			camera.update(dt);
 			for (let i = active.length - 1; i >= 0; i--) {
 				const effect = active[i];
-				if (!ctx.world.entities.includes(effect.runtime.target)) {
+				if (effect.tracked && !ctx.world.entities.includes(effect.tracked)) {
 					cancel(effect);
 					active.splice(i, 1);
+					resetCameraWhenIdle();
 					continue;
 				}
 

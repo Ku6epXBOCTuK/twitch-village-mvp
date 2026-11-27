@@ -6,6 +6,7 @@ import {
 import { loadAssets } from "./assets.js";
 import { ANIMAL_COUNT, CAMPFIRE_POSITION } from "./config.js";
 import { createGameCore } from "./core.js";
+import { CAMPFIRE_EFFECT_ID } from "./effects/catalog.js";
 import { defaultSettings, type GameSettings } from "./settings.js";
 
 const MAX_FRAME_MS = 50;
@@ -41,7 +42,7 @@ export async function bootstrapGame(
 		{ app, assets },
 	);
 
-	core.spawnEffect({ id: "fire/campfire" }, CAMPFIRE_POSITION);
+	core.spawnEffect({ id: CAMPFIRE_EFFECT_ID }, CAMPFIRE_POSITION);
 	for (let i = 0; i < ANIMAL_COUNT; i++) core.spawnAnimal();
 
 	let timeScale = 1;
@@ -69,7 +70,7 @@ export async function bootstrapGame(
 		removeBots: core.removeBots,
 		reset() {
 			core.reset();
-			core.spawnEffect({ id: "fire/campfire" }, CAMPFIRE_POSITION);
+			core.spawnEffect({ id: CAMPFIRE_EFFECT_ID }, CAMPFIRE_POSITION);
 			for (let i = 0; i < ANIMAL_COUNT; i++) core.spawnAnimal();
 		},
 

@@ -26,6 +26,21 @@ describe("pixelfx sprite bridge", () => {
 		second.destroy();
 	});
 
+	it("advances campfire frames as time passes", () => {
+		const module = effects["fire/campfire"];
+		expect(module).toBeDefined();
+		if (!module) return;
+
+		const instance = createFxSprite(module, { id: "fire/campfire" });
+		instance.update(0.5, { x: 10, y: 20 });
+		const first = instance.pixels.slice();
+		instance.update(0.5, { x: 10, y: 20 });
+
+		expect(instance.pixels).not.toEqual(first);
+		expect(instance.done()).toBe(false);
+		instance.destroy();
+	});
+
 	it("registers the star iris transition", () => {
 		expect(effects["transitions/star-iris"]).toBeDefined();
 		expect(effects["transitions/star-iris"]?.meta.size).toEqual([320, 180]);

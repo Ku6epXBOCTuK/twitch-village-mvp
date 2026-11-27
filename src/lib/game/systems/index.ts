@@ -1,5 +1,4 @@
 ﻿import { createAnimalRenderSystem } from "./animal-render.js";
-import { createEffectRenderSystem } from "./effect-render.js";
 import { createEffectRunnerSystem } from "./effect-runner.js";
 import { createMapRenderSystem } from "./map-render.js";
 import { createMeasureSystem } from "./measure.js";
@@ -32,7 +31,6 @@ export function renderGroups(): RenderSystemGroup[] {
 			factories: [
 				createEffectRunnerSystem,
 				createMapRenderSystem,
-				createEffectRenderSystem,
 				createAnimalRenderSystem,
 				createViewerRenderSystem,
 			],
